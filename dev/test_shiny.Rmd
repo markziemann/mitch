@@ -1,0 +1,106 @@
+---
+title: "nDrichr Report"
+author: "Antony Kaspi & Mark Ziemann"
+runtime: shiny
+output: html_document
+theme: cosmo
+---
+
+
+
+## Shiny test1
+
+```{r, echo=FALSE}
+library(shiny)
+shinyApp(
+
+  ui = fluidPage(
+    selectInput("region", "Region:",
+                choices = colnames(WorldPhones)),
+    plotOutput("phonePlot")
+  ),
+
+  server = function(input, output) {
+    output$phonePlot = renderPlot({
+      barplot(WorldPhones[,input$region]*1000,
+              ylab = "Number of Telephones", xlab = "Year")
+    })
+  },
+
+  options = list(height = 500)
+)
+
+```
+
+## Shiny test 2
+```{r}
+library(shiny)
+sidebarLayout(
+  sidebarPanel(
+    selectizeInput('main', 'Main title', LETTERS),
+    sliderInput('size', 'Point size', min = 0.2, max = 5, value = 1)
+  ),
+  mainPanel(
+    renderPlot(plot(cars, main = input$main, cex = input$size, pch = 19),
+               width = 600, height = 400)
+  )
+)
+```
+
+## Enrichment scatterplot with shiny
+
+```{r,results="asis",echo=F, fig.height = 7, fig.width = 7}
+library(ggplot2)
+library(Cairo)   # For nicer ggplot2 output when deployed on Linux
+library(shiny)
+
+# We'll use a subset of the mtcars data set, with fewer columns
+# so that it prints nicely
+mtcars2 <- mtcars[, c("mpg", "cyl", "disp", "hp", "wt", "am", "gear")]
+
+
+ui <- fluidPage(
+  fluidRow(
+    column(width = 4,
+      plotOutput("plot1", height = 300,
+        # Equivalent to: click = clickOpts(id = "plot_click")
+        click = "plot1_click",
+        brush = brushOpts(
+          id = "plot1_brush"
+        )
+      )
+    )
+  ),
+  fluidRow(
+    column(width = 6,
+      h4("Points near click"),
+      verbatimTextOutput("click_info")
+    ),
+    column(width = 6,
+      h4("Brushed points"),
+      verbatimTextOutput("brush_info")
+    )
+  )
+)
+
+server <- function(input, output) {
+  output$plot1 <- renderPlot({
+    ggplot(mtcars2, aes(wt, mpg)) + geom_point()
+  })
+
+  output$click_info <- renderPrint({
+    # Because it's a ggplot2, we don't need to supply xvar or yvar; if this
+    # were a base graphics plot, we'd need those.
+    nearPoints(mtcars2, input$plot1_click, addDist = TRUE)
+  })
+
+  output$brush_info <- renderPrint({
+    brushedPoints(mtcars2, input$plot1_brush)
+  })
+}
+
+shinyApp(ui, server)
+
+```
+
+

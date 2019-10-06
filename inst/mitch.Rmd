@@ -1,0 +1,1125 @@
+---
+title: "Mitch Report"
+author: "Antony Kaspi & Mark Ziemann"
+output: html_document
+theme: cosmo
+---
+
+date generated: `r Sys.Date()`
+
+## Background
+
+Mitch performs unidimensional and multidimensional gene set enrichment analysis. The
+concept behind this dates to work by Cox and Mann 
+(https://doi.org/10.1186/1471-2105-13-S16-S12). This implementation is suited to R based 
+workflows of multi-omics datasets. This software was developed by Antony Kaspi and Mark 
+Ziemann. Learn more about Mitch at the website: https://github.com/markziemann/Mitch
+
+## Input profiles
+
+Here is the first few lines of the input profile.
+
+```{r,peek,echo=FALSE}
+load(DATANAME)
+
+# capture the dimensionality of the data                                               
+d=ncol(res$input_profile)
+
+# if working with >5 dimensions, then substitute the dimension (colnames) names with a number
+if ( d>5 ) {
+
+    mydims<-data.frame(seq_len(d))
+
+    mydims$colnames<-attributes(res)$profile_dimensions
+
+    colnames(mydims)<-c("dimension","contrast_name")
+
+    print(kable( mydims, caption = "Profile dimensions" ))
+
+    colnames(res$input_profile)<- paste("d",seq_len(d),sep="")
+
+    colnames(res$ranked_profile)<- paste("d",seq_len(d),sep="")
+
+    ss<-res$ranked_profile
+
+}
+
+head(res$input_profile)
+```
+
+Here are some metrics about the input data profile:
+```{r, metrics, echo=FALSE}
+if (d==1) {
+
+    formatted<-t(as.data.frame(res$analysis_metrics[ c(1,2,3,4,5 ) ])) 
+
+} else if (d==2) {
+
+    unformatted<-t(as.data.frame(res$analysis_metrics[ c(2,3,4,5,11,12 )  ]))
+
+    formatted<-unformatted
+
+    formatted[1:4]<-as.character(round(as.numeric(unformatted[1:4]) , digits=0))
+
+    formatted[5:6]<-as.character(round(as.numeric(unformatted[5:6]) , digits=5))
+
+} else if (d>2) {
+
+    formatted<-t(as.data.frame(res$analysis_metrics[ c(2,3,4,5 )  ]))
+
+}
+
+colnames(formatted)="Profile metrics"
+
+kable( formatted, caption = "Profile metrics" )
+```
+
+Here is a plot of the input profiles. Note the dynamic ranges.
+```{r, scatterplot, echo=FALSE,fig.height = 6, fig.width = 6.5, message=FALSE, warning=FALSE}
+if ( d==1 ) {
+
+    par(mfrow=c(2,1))
+
+    hist(res$input_profile[,1],breaks=50,main="Distribution of DE scores",xlab=paste("DE score for ",colnames(res$input_profile)))
+
+    plot(res$input_profile,xlab=paste("DE score for ",colnames(res$input_profile)),
+
+    pch="|",frame.plot=FALSE)
+
+    UPS=length(which(res$input_profile>0))
+
+    DNS=length(which(res$input_profile<0))
+
+    TOTAL=nrow(res$input_profile)
+
+    mtext(paste(TOTAL,"genes in total,",UPS,"trending up-regulated,",DNS,"trending down-regulated"))
+
+} else if ( d<3 ) {
+
+    plot(res$input_profile, pch=19, col=rgb(red = 0, green = 0, blue = 0, alpha = 0.15), main="Input profiles"  )
+
+} else {
+
+    library("GGally")
+
+    ggpairs_points_plot <- function(data ,mapping, ...){
+
+        p <- ggplot(data = data, mapping = mapping) +
+        geom_point(alpha=0.05) +
+        geom_vline(xintercept=0,linetype="dashed") +
+        geom_hline(yintercept=0,linetype="dashed")
+
+    }
+
+    p<-ggpairs(as.data.frame(res$input_profile), title="Scatterplot of all genes" , lower  = list(continuous = ggpairs_points_plot ))
+
+    print( p +  theme_bw() )
+
+}
+```
+
+Here is the contour plot of the profile including all detected genes.
+```{r, contourplot, echo=FALSE,fig.height = 6, fig.width = 6.5,warning=FALSE, message=FALSE}
+palette <- colorRampPalette(c("white", "yellow","orange" ,"red","darkred","black"))
+
+#Contour of all the data
+ss<-res$ranked_profile
+
+if (d==1) {
+
+    message("Contour plot does not apply to unidimensional analysis.")
+
+} else if (d==2) {
+
+    xmin=min(ss[,1])
+
+    xmax=max(ss[,1])
+
+    ymin=min(ss[,2])
+
+    ymax=max(ss[,2])
+
+    ss<-res$ranked_profile
+
+    k<-MASS:::kde2d(ss[,1],ss[,2])
+
+    X_AXIS=paste("Rank in contrast",colnames(ss)[1])
+
+    Y_AXIS=paste("Rank in contrast",colnames(ss)[2])
+
+    filled.contour(k, xlim=c(xmin,xmax),ylim=c(ymin,ymax),
+    color=palette ,
+    plot.title={ abline(v=0,h=0,lty=2,lwd=2,col="blue")
+    title( main="Rank-rank plot of all genes",xlab=X_AXIS,ylab=Y_AXIS ) } )
+
+} else if (d>2) {
+
+    #pairs contour plot function
+    ggpairs_func <- function(data, mapping, ...){
+
+        p <- ggplot(data = data, mapping = mapping) +
+        stat_density2d(aes(fill=..density..), geom="tile", contour = FALSE) +
+        geom_vline(xintercept=0,linetype="dashed") +
+        geom_hline(yintercept=0,linetype="dashed") +
+        scale_fill_gradientn(colours=palette(25))
+
+        p
+
+    }
+
+    #pairs contour plot
+    p<-ggpairs(as.data.frame(ss), title="Contour plot of all genes after ranking" , 
+    lower=list(continuous=ggpairs_func),
+    diag=list(continuous=wrap("barDiag", binwidth=nrow(ss)/100)))
+
+    print( p + theme_bw() )
+
+    #subset contour plot
+    ggpairs_contour_limit_range <- function(data ,mapping, ...){
+
+        p <- ggplot(data = data, mapping = mapping) +
+        stat_density2d(aes(fill=..density..), geom="tile", contour = FALSE) +
+        geom_vline(xintercept=0,linetype="dashed") +
+        geom_hline(yintercept=0,linetype="dashed") +
+        scale_fill_gradientn(colours=palette(25)) +
+        scale_x_continuous( limits = range(min(ss[,gsub("~","",as.character(mapping[1]))]),max(ss[,gsub("~","",as.character(mapping[1]))])) ) +
+        scale_y_continuous( limits = range(min(ss[,gsub("~","",as.character(mapping[2]))]),max(ss[,gsub("~","",as.character(mapping[2]))])) )
+
+        p
+
+    }
+
+    #subset points plot
+    ggpairs_points_limit_range <- function(data ,mapping, ...){
+
+        p <- ggplot(data = data, mapping = mapping) +
+        geom_point(alpha=0.1) +
+        geom_vline(xintercept=0,linetype="dashed") +
+        geom_hline(yintercept=0,linetype="dashed") +
+        scale_x_continuous( limits = range(min(ss[,gsub("~","",as.character(mapping[1]))]),max(ss[,gsub("~","",as.character(mapping[1]))])) ) +
+        scale_y_continuous( limits = range(min(ss[,gsub("~","",as.character(mapping[2]))]),max(ss[,gsub("~","",as.character(mapping[2]))])) )
+
+        p
+
+    }
+
+}
+```
+
+## Input genesets
+Here are some metrics about the gene sets used:
+```{r,input_geneset_metrics1,results="asis",echo=FALSE}
+ORIGINFILE=attributes(res$input_genesets)$originfile
+
+cat(paste("GMT file of genesets:",ORIGINFILE,"<br>"))
+
+unformatted<-t(as.data.frame(res$analysis_metrics[c(1,6,7)]))
+
+formatted<-as.data.frame(as.character( unformatted[1:3]) )
+
+rownames(formatted)=rownames(unformatted)
+
+colnames(formatted)="Gene sets metrics"
+
+kable( formatted , col.names = "Gene sets metrics" ,caption = "Gene sets metrics" )
+```
+
+```{r,input_geneset_metrics2,results="asis",echo=FALSE ,fig.height = 7, fig.width = 7 ,fig.show="all"}
+par(mfrow=c(3,1))
+
+geneset_counts<-res$analysis_metrics$geneset_counts
+
+boxplot(geneset_counts$count,horizontal=TRUE,frame=FALSE,main="Gene set size",xlab="number of member genes included in profile")
+
+hist(geneset_counts$count,100,xlab="geneset size",main="Histogram of geneset size")
+
+hist(geneset_counts$count,100,xlim=c(0,500),xlab="geneset size",main="Trimmed histogram of geneset size")
+
+if ( d==2 ) {
+
+    uu=length(which(res$input_profile[,1]>0 & res$input_profile[,2]>0))
+
+    ud=length(which(res$input_profile[,1]>0 & res$input_profile[,2]<0))
+
+    dd=length(which(res$input_profile[,1]<0 & res$input_profile[,2]<0))
+
+    du=length(which(res$input_profile[,1]<0 & res$input_profile[,2]>0))
+
+    a<-as.data.frame(c(uu,ud,dd,du))
+
+    rownames(a)=c("top-right","bottom-right","bottom-left","top-left")
+
+    colnames(a)="a"
+
+    par(mfrow=c(1,1))
+
+    xx<-barplot(a$a,names.arg=rownames(a),main="number of genes in each quadrant")
+
+    text(x = xx, y = a$a, label = a$a , pos = 1, cex = 1)
+
+} else if (d>2) {
+
+    if (d<6) {
+
+        sig<-sign(ss)
+
+        sector_count<-aggregate(seq_len(nrow(sig)) ~ ., sig, FUN = length)
+
+        colnames(sector_count)[ncol(sector_count)]<-"Count"
+
+        kable(sector_count ,caption = "Genes by sector" ,row.names=TRUE)
+
+    }
+
+}
+
+```
+
+```{r,input_geneset_metrics3,results="asis",echo=FALSE,message=FALSE,fig.height = 7, fig.width = 7}
+if (d<2) {
+
+    nsig=length(which(res$enrichment_result$p.adjustANOVA<0.05))
+
+} else {
+
+    nsig=length(which(res$enrichment_result$p.adjustMANOVA<0.05))
+}
+
+if (d==1) {
+
+    cat("<h2>Differential pathway expression</h2><br>")
+
+    par(mfrow=c(1,1))
+
+    sig<-subset(res$enrichment_result,p.adjustANOVA<=0.05)
+
+    plot(res$enrichment_result$s.dist,-log10(res$enrichment_result$pANOVA),
+    xlab="s score",ylab="-log10(p-value)",
+    main="volcano plot of gene set enrichments",pch=19,cex=0.8)
+
+    points(sig$s.dist,-log10(sig$pANOVA),pch=19,cex=0.85,col="red")
+
+    TOTAL=nrow(res$enrichment_result)
+
+    SIG=nrow(sig)
+
+    UP=length(which(sig$s.dist>0))
+
+    DN=length(which(sig$s.dist<0))
+
+    SUBHEADER=paste(TOTAL,"gene sets in total,",UP,"upregulated and ",DN,"downregulated (FDR<=0.05)")
+
+    mtext(SUBHEADER)
+}
+
+if (d==2) {
+
+    cat("<h2>Gene sets by quadrant</h2><br>")
+
+    cat(paste("Number of significant gene sets (FDR<0.05)=", res$analysis_metrics$num_sets_significant,"<br>" ))
+
+    a<-res$analysis_metrics[14]
+
+    a<-as.data.frame(as.numeric(unlist(strsplit(as.character(a),','))),stringsAsFactors=FALSE)
+
+    rownames(a)=c("top-right","bottom-right","bottom-left","top-left")
+
+    colnames(a)="a"
+
+    xx<-barplot(a$a,names.arg=rownames(a),main="number of genesets FDR<0.05")
+
+    text(x = xx, y = a$a, label = a$a , pos = 1, cex = 1)
+} 
+
+if ( nsig > 0 ) {
+
+    if ( d>2 ) {
+
+        if ( d<6 ) {
+
+            cat(paste("Number of significant gene sets (FDR<0.05)=", res$analysis_metrics$num_sets_significant,"<br>" ))
+
+            cat("<h2>Gene sets by sector</h2><br>")
+
+            sig<-sign(res$enrichment_result[which(res$enrichment_result$p.adjustMANOVA<0.05),4:(4+d-1)])
+
+            sector_count<-aggregate(seq_len(nrow(sig)) ~ ., sig, FUN = length)
+
+            colnames(sector_count)[ncol(sector_count)]<-"Count"
+
+            kable(sector_count ,caption = "Gene sets by sector" ,row.names=TRUE)
+        }
+    }
+}
+
+```
+
+## Enrichment scatterplot with taucharts
+```{r,tauchart1d,results="asis",echo=FALSE, fig.height = 7, fig.width = 7 ,fig.show="all", message=FALSE}
+
+if (d==1) {
+
+    #1D tauchart
+    library("taucharts")
+    library(dplyr)
+    library(gtools)
+
+    numsets=nrow(subset(res$enrichment_result,p.adjustANOVA<0.05))
+
+    p=NULL
+
+    if (numsets==0){
+
+        message("No significant enrichments found.")
+
+    } else {
+
+        # volcano tauchart
+        myres<-subset(res$enrichment_result,p.adjustANOVA<0.05)
+
+        myres$significance<--log10(myres$pANOVA)
+
+        myres$set<-gsub("_"," ",as.character(myres$set))
+
+        myres[,3:ncol(myres)]<-signif(myres[,3:ncol(myres)],3)
+
+        colnames(myres)=gsub("\\.","_",colnames(myres))
+
+        my_x=colnames(myres)[4]
+
+        my_y=colnames(myres)[6]
+
+        p<-tauchart(myres) %>% tau_point(my_x,my_y) %>% tau_tooltip()
+
+        cat("Significance is calculated by -log10(p-value). All points shown are FDR<0.05.<br>")
+
+    }
+
+    p
+}
+
+if (d==1) {
+
+    resrows=length(res$detailed_sets)
+
+    if (resrows>1) {
+
+        myres<-head(res$enrichment_result,resrows)
+
+        myres$significance<--log10(myres$pANOVA)
+
+        myres$set<-gsub("_"," ",as.character(myres$set))
+
+        myres[,3:ncol(myres)]<-signif(myres[,3:ncol(myres)],3)
+
+        colnames(myres)=gsub("\\.","_",colnames(myres))
+
+        my_x=colnames(myres)[4]
+
+        my_y=colnames(myres)[6]
+
+        p<-tauchart(myres) %>% tau_point(my_x,my_y) %>% tau_tooltip()
+
+        cat("Significance is calculated by -log10(p-value). Top N sets shown irrespective of FDR.<br>")
+
+    }
+
+    p
+
+}
+
+```{r,tauchart2,results="asis",echo=FALSE, fig.height = 7, fig.width = 7 ,fig.show="all", message=FALSE}
+
+tauscatter<-function(i){
+
+    my_x=plan[i,1]
+
+    my_y=plan[i,2]
+
+    colnames(myres)=gsub("\\.","_",colnames(myres))
+
+    my_x=colnames(myres)[3+my_x]
+
+    my_y=colnames(myres)[3+my_y]
+
+    myres$set<-gsub("_"," ",as.character(myres$set))
+
+    tauchart(myres) %>% tau_point(my_x,my_y) %>% tau_tooltip()
+
+}
+
+
+if (d!=1) {
+    library("taucharts")
+    library(dplyr)
+    library(gtools)
+
+    cat("All sets with FDR<0.05. Try hovering over the points.<br>")
+
+    numsets=nrow(subset(res$enrichment_result,p.adjustMANOVA<0.05))
+
+    p=NULL
+
+    if (numsets<1){
+
+        message("No significant enrichments found.")
+
+    } else {
+
+        myres<-subset(res$enrichment_result,p.adjustMANOVA<0.05)
+
+        if ( d<3 ) {
+
+            myres<-myres[,c(1,which(names(myres) %in% "p.adjustMANOVA"),2, 4:(4+d-1) , which(names(myres) %in% "s.dist") )]
+
+            myres$set<-gsub("_"," ",as.character(myres$set))
+
+            colnames(myres)=gsub("\\.","_",colnames(myres))
+
+            my_x=colnames(myres)[4]
+
+            my_y=colnames(myres)[5]
+
+            p<-tauchart(myres) %>% tau_point(my_x,my_y) %>% tau_tooltip()
+
+        } else {
+
+            plan<-combinations(n = d, r = 2, v = seq_len(d), repeats.allowed = FALSE)
+
+            myres<-myres[,c(1, which(names(myres) %in% "p.adjustMANOVA") ,2,4:(4+d-1), which(names(myres) %in% "s.dist") ), which(names(myres) %in% "SD")]
+
+            p<-list()
+
+            p<-lapply( seq_len(nrow(plan)) , tauscatter)
+
+        }
+
+    }
+
+    htmltools::tagList(p)
+
+}
+
+if (d!=1) {
+
+    cat("Top N sets irrespective of FDR. Try hovering over the points.<br>")
+
+    resrows=length(res$detailed_sets)
+
+    p=NULL
+
+    if (resrows<1){
+
+        message("No results found.")
+
+    } else {
+
+        myres<-head(res$enrichment_result,resrows)
+
+        if ( d<3 ) {
+
+            myres<-myres[,c(1,which(names(myres) %in% "p.adjustMANOVA"),2, 4:(4+d-1) , which(names(myres) %in% "s.dist") )]
+
+            myres$set<-gsub("_"," ",as.character(myres$set))
+
+            colnames(myres)=gsub("\\.","_",colnames(myres))
+
+            my_x=colnames(myres)[4]
+
+            my_y=colnames(myres)[5]
+
+            p<-tauchart(myres) %>% tau_point(my_x,my_y) %>% tau_tooltip()
+
+        } else {
+
+            plan<-combinations(n = d, r = 2, v = seq_len(d), repeats.allowed = FALSE)
+
+            myres<-myres[,c(1, which(names(myres) %in% "p.adjustMANOVA") ,2,4:(4+d-1), which(names(myres) %in% "s.dist") ), which(names(myres) %in% "SD")]
+
+            p<-list()
+
+            p<-lapply( seq_len(nrow(plan)) , tauscatter)
+
+        }
+
+    }
+
+    htmltools::tagList(p)
+
+}
+
+```
+
+```{r,heatmap,results="asis",echo=FALSE, fig.height = 10, fig.width = 7 ,fig.show="all", message=FALSE}
+if (d!=1) {
+
+    if (resrows>2) {
+
+        cat("<h2> A heatmap of S values for top results</h2><br>")
+
+        library(gplots)
+
+        hmapx<-head( res$enrichment_result[,4:(4+d-1)] ,resrows)
+
+        rownames(hmapx)<-head(res$enrichment_result$set,resrows)
+
+        colnames(hmapx)<-gsub("^s.","",colnames(hmapx))
+
+        my_palette <- colorRampPalette(c("blue", "white", "red"))(n = 25)
+
+        if(resrows<25){
+
+            CEXROW=1
+
+        } else if (resrows<51) {
+
+            CEXROW=0.8
+
+        } else if (resrows<76) {
+
+            CEXROW=0.6
+
+        } else if (resrows<101) {
+
+            CEXROW=0.4
+
+        } else {
+
+            CEXROW=0.25
+
+        }
+
+        heatmap.2(as.matrix(hmapx),scale="none",margin=c(10, 25),cexRow=CEXROW,trace="none",cexCol=1,col=my_palette)
+
+    }
+
+}
+```
+
+```{r,effectsize,results="asis",echo=FALSE, fig.height = 7, fig.width = 7 ,fig.show="all", message=FALSE}
+if (d!=1) {
+
+    cat('<h2> A plot of effect size versus significance</h2><br>')
+
+    cat('Significance is the -log2(p.adjustMANOVA) and effect size is the s.dist which is the hypotenuse of the s scores.<br>')
+
+    myres<-res$enrichment_result
+
+    myres[,3:ncol(myres)]<-signif(myres[,3:ncol(myres)],3)
+
+    myres$significance<--log2(myres$p.adjustMANOVA)
+
+    myres$set<-gsub("_"," ",as.character(myres$set))
+
+    colnames(myres)=gsub("\\.","_",colnames(myres))
+
+    my_x=colnames(myres)[ncol(myres)-2]
+
+    my_y=colnames(myres)[ncol(myres)]
+
+    tauchart(myres) %>% tau_point(my_x,my_y) %>% tau_tooltip()
+
+}
+```
+
+## Results table
+```{r,results_table,results="asis",echo=FALSE}
+if ( d==1 ) {
+
+    resrows=length(res$detailed_sets)
+
+    myres<-head(res$enrichment_result,resrows)
+
+    myres[,c(3:ncol(myres))]<-signif(myres[,c(3:ncol(myres))],3)
+
+} else if (d>1) {
+
+    resrows=length(res$detailed_sets)
+
+    myres<-head(res$enrichment_result,resrows)
+
+    myres<-myres[,c(1:3, which(names(myres) %in% "p.adjustMANOVA"), which(names(myres) %in% "s.dist") ,4:((d*2)+3)), which(names(myres) %in% "SD")]
+
+    myres[,3:ncol(myres)]<-signif(myres[,3:ncol(myres)],3)
+}
+
+formatted<-myres
+
+formatted[,1]<-gsub("_"," ",myres[,1])
+
+kable( formatted , col.names = colnames(formatted) , row.names=FALSE, caption = cat(paste("Top N=",resrows,"gene sets")) ,digits=100)
+
+cat("<hr><br>")
+```
+
+## Results (complete table)
+```{r,results_table_complete,results="asis",echo=FALSE}
+myres<-res$enrichment_result
+
+if ( d==1 ) {
+
+    myres[,c(3:ncol(myres))]<-signif(myres[,c(3:ncol(myres))],3)
+
+    formatted<-myres
+
+    formatted[,1]<-gsub("_"," ",myres[,1])
+
+} else if (d>1) {
+
+    myres<-myres[,c(1:3, which(names(myres) %in% "p.adjustMANOVA"), which(names(myres) %in% "s.dist") ,4:((d*2)+3)), which(names(myres) %in% "SD")]
+
+    myres[,3:ncol(myres)]<-signif(myres[,3:ncol(myres)],3)
+
+    formatted<-myres
+
+    formatted[,1]<-gsub("_"," ",myres[,1])
+
+    formatted[,3:ncol(myres)]<-format(myres[,3:ncol(myres)],digits=3)
+
+}
+
+HEADER=paste("<br><details><summary><b>","Click HERE to show results for all gene sets","</b></summary><br><p>",sep=" " )
+
+cat(HEADER)
+
+kable(formatted, col.names=colnames(formatted),row.names=FALSE,caption = "Complete results",digits=100)
+
+cat("<br></p></details>")
+
+cat("<hr><br>")
+```
+
+```{r,detailed_geneset_reports1d,results="asis",echo=FALSE,fig.height=6, fig.width=6 ,out.width = '80%',comment=NA, message=FALSE}
+if (d==1) {
+
+    cat("<h2>Detailed Gene set reports</h2><br>")
+
+    cat('<br>')
+
+    cat('\n')
+
+    library("beeswarm")
+
+    ss<-res$ranked_profile
+
+    for ( i in seq_len(resrows) ) {
+
+        mydat = NULL
+
+        mydat<-t(myres[i,])
+
+        cat(paste("<b>",as.character(myres[i,1]) ,"</b><br>"))
+
+        print(kable(mydat,format='markdown',caption=as.character(t(myres[i,1]))) )
+
+        cat('\n')
+
+        cat("<br>")
+
+        # plots
+        sss<-res$detailed_sets[[i]]
+
+        set<-names(res$detailed_sets[i])
+
+        size<-length(sss)
+
+        par(mfrow=c(3,1))
+
+        beeswarm(sss,vertical = FALSE,cex=0.75,xlim=c(min(ss),
+        max(ss)),col="darkgray",pch=19,main=set,cex.main=1.5,
+        xlab=paste("ranked DE score in:",colnames(ss)))
+
+        mtext("beeswarm plot",cex=0.8)
+
+        hist(sss,xlim=c(min(ss),max(ss)),breaks=15,col="darkgray",main=NULL,
+        border="black",xlab=paste("ranked DE score in:",colnames(ss)))
+
+        mtext("histogram",cex=0.8)
+
+        plot(sss,rep(1,length(sss)),type="n",xlim=c(min(ss),max(ss)),
+        frame=FALSE,axes=FALSE,ylab="",
+        xlab=paste("ranked DE score in:",colnames(ss)))
+
+        rug(sss, ticksize = 0.9)
+
+        axis(1)
+
+        mtext("rugplot",cex=0.8)
+
+        cat("<br>")
+
+        # top gene list
+        setSign=sign(res$enrichment_result[i,4])
+
+        if (setSign==-1) {
+
+            tops<-as.data.frame(res$detailed_sets[[i]][order(res$detailed_sets[[i]])])
+
+        } else if (setSign==1) {
+
+            tops<-as.data.frame(res$detailed_sets[[i]][order(-res$detailed_sets[[i]])])
+
+        }
+
+        cat("Top enriched genes\\n")
+
+        tops$GeneID<-rownames(tops)
+
+        tops<-tops[,c(2,1)]
+
+        colnames(tops)=c("GeneID","Gene Rank")
+
+        cat("<br>")
+
+        print(kable(head(tops,n=20L),col.names=colnames(tops),format="markdown",row.names=FALSE,caption="Top 20 genes",digits=100))
+
+        cat('\n')
+
+        HEADER=paste("<br><details><summary><b>","Click HERE to show all gene set members","</b></summary><br><p>",sep=" " )
+
+        cat(HEADER)
+
+        print(kable(tops,col.names=colnames(tops),format="markdown",row.names=FALSE,caption="All member genes",digits=100))
+
+        cat('\n')
+
+        cat("<br></p></details>")
+
+        cat("<br><hr>")
+
+    }
+
+}
+```
+
+
+
+```{r,detailed_geneset_reports2d,results="asis",echo=FALSE,fig.height=5, fig.width=6 ,out.width = '80%',comment=NA, message=FALSE}
+
+twodimplot<-function(i) {
+
+    ll<-res$enrichment_result[i,]
+
+    size<-ll$setSize
+
+    sss<-res$detailed_sets[[i]]
+
+    k<-MASS:::kde2d(sss[,1],sss[,2])
+
+    filled.contour( k, color = palette, xlim=c(xmin,xmax),ylim=c(ymin,ymax),
+
+    plot.title={ abline(v=0,h=0,lty=2,lwd=2,col="blue")
+
+    title( main=ll$set , xlab=X_AXIS,ylab=Y_AXIS )})
+
+    plot(sss, pch=19, col=rgb(red = 0, green = 0, blue = 0, alpha = 0.2),
+    main=ll$set , xlim=c(xmin,xmax),ylim=c(ymin,ymax),
+    xlab=X_AXIS,ylab=Y_AXIS)
+
+    abline(v=0,h=0,lty=2,lwd=2,col="blue")
+
+    sss_long<-melt(sss)
+
+    p<-ggplot(ss_long,aes(Var2,value)) +
+    geom_violin(data=ss_long,fill = "grey", colour = "grey") +
+    geom_boxplot(data=ss_long,width=0.9,fill="grey",outlier.shape = NA) +
+    geom_violin(data=sss_long,fill = "black", colour = "black") +
+    geom_boxplot(data=sss_long,width=0.1,outlier.shape = NA) +
+    labs(y = "Position in rank",title = ll[,1] )
+
+    print( p + theme_bw() +
+    theme( axis.text=element_text(size=14),
+    axis.title=element_text(size=15),
+    plot.title = element_text(size = 14)))
+}
+
+
+# subset contour plot
+ggpairs_contour_limit_range <- function(data ,mapping, ...){
+    p <- ggplot(data = data, mapping = mapping) +
+    stat_density2d(aes(fill=..density..), geom="tile", contour = FALSE) +
+    geom_vline(xintercept=0,linetype="dashed") +
+    geom_hline(yintercept=0,linetype="dashed") +
+    scale_fill_gradientn(colours=palette(25)) +
+    scale_x_continuous( limits = range(min(ss[,gsub("~","",as.character(mapping[1]))]),max(ss[,gsub("~","",as.character(mapping[1]))])) ) +
+    scale_y_continuous( limits = range(min(ss[,gsub("~","",as.character(mapping[2]))]),max(ss[,gsub("~","",as.character(mapping[2]))])) )
+    p
+}
+
+
+# subset points plot
+ggpairs_points_limit_range <- function(data ,mapping, ...){
+    p <- ggplot(data = data, mapping = mapping) +
+    geom_point(alpha=0.1) +
+    geom_vline(xintercept=0,linetype="dashed") +
+    geom_hline(yintercept=0,linetype="dashed") +
+    scale_x_continuous( limits = range(min(ss[,gsub("~","",as.character(mapping[1]))]),max(ss[,gsub("~","",as.character(mapping[1]))])) ) +
+    scale_y_continuous( limits = range(min(ss[,gsub("~","",as.character(mapping[2]))]),max(ss[,gsub("~","",as.character(mapping[2]))])) )
+    p
+}
+
+
+
+ndplot<-function(i) {
+
+    ll<-res$enrichment_result[i,]
+
+    size<-ll$setSize
+
+    ss<-res$ranked_profile
+
+    sss<-res$detailed_sets[[i]]
+
+    if ( d>5 ) {
+
+        colnames(sss)<- paste("d",seq_len(d),sep="")
+
+    }
+
+    p<-ggpairs(as.data.frame(sss), title=ll[,1], lower=list(continuous=ggpairs_contour_limit_range),
+    diag=list(continuous=wrap("barDiag", binwidth=nrow(ss)/10)) )
+
+    print( p + theme_bw() )
+
+    p<-ggpairs(as.data.frame(sss), title=ll[,1], lower= list(continuous = ggpairs_points_limit_range ),
+    diag=list(continuous=wrap("barDiag", binwidth=nrow(ss)/10)))
+
+    print( p + theme_bw() )
+
+    sss_long<-melt(sss)
+
+    p<-ggplot(ss_long,aes(Var2,value)) +
+    geom_violin(data=ss_long,fill = "grey", colour = "grey") +
+    geom_boxplot(data=ss_long,width=0.9,fill="grey",outlier.shape = NA) +
+    geom_violin(data=sss_long,fill = "black", colour = "black") +
+    geom_boxplot(data=sss_long,width=0.1,outlier.shape = NA) +
+    labs(y = "Position in rank",title = ll[,1] )
+
+    print( p + theme_bw() +
+    theme( axis.text=element_text(size=14),
+    axis.title=element_text(size=15),
+    plot.title = element_text(size = 14)))
+
+}
+
+
+
+topgenelist<-function(i) {
+    ss<-res$ranked_profile
+
+    sss<-res$detailed_sets[[i]]
+
+    if ( d>5 ) {
+
+        colnames(sss)<- paste("d",seq_len(d),sep="")
+
+    }
+
+    tl=bl=tr=br=0
+
+    myres<-head(res$enrichment_result,resrows)
+
+    myres<-myres[,c(1:3, which(names(myres) %in% "p.adjustMANOVA"), which(names(myres) %in% "s.dist") ,4:((d*2)+3)) , which(names(myres) %in% "s.dist")]
+
+    myres[,3:ncol(myres)]<-signif(myres[,3:ncol(myres)],3)
+
+    #select 2 strongest columns to highlight genes
+    if( d>2 ) {
+
+        cols<-(ncol(myres)-(2*d)+1):(ncol(myres)-(2*d)+d)
+
+        COLS<-order(-abs(myres[i,cols]))[1:2]
+
+        sss<-sss[,COLS]
+
+        cols<-cols[COLS]
+
+        mysx=signif(myres[i,cols[1]],3)
+
+        mysy=signif(myres[i,cols[2]],3)
+
+    } else {
+
+        cols=c(ncol(myres)-3,ncol(myres)-2)
+
+        mysx=signif(myres[i,cols[1]],3)
+
+        mysy=signif(myres[i,cols[2]],3)
+
+    }
+
+    if ( mysy>0 ) { tl=tl+1 ; tr=tr+1  } else { bl=bl+1 ; br=br+1 }
+
+    if ( mysx>0 ) { tr=tr+1 ; br=br+1  } else { tl=tl+1 ; bl=bl+1 }
+
+    if (bl==2) {
+
+        myquad<-sss[which(sss[,1]<0 & sss[,2]<0),,drop=FALSE]
+
+        topgenes<-myquad[order(-rank(myquad[,1]*myquad[,2])),,drop=FALSE]
+    }
+
+    if (tr==2) {
+
+        myquad<-sss[which(sss[,1]>0 & sss[,2]>0),,drop=FALSE]
+
+        topgenes<-myquad[order(-rank(myquad[,1]*myquad[,2])),,drop=FALSE]
+
+    }
+
+    if (br==2) {
+
+        myquad<-sss[which(sss[,1]>0 & sss[,2]<0),,drop=FALSE]
+
+        topgenes<-myquad[order(rank(myquad[,1]*myquad[,2])),,drop=FALSE]
+
+    }
+
+    if (tl==2) {
+
+        myquad<-sss[which(sss[,1]<0 & sss[,2]>0),,drop=FALSE]
+
+        topgenes<-myquad[order(rank(myquad[,1]*myquad[,2])),,drop=FALSE]
+
+    }
+
+    cat("<br>")
+
+    topgenes<-as.data.frame(topgenes)
+
+    topgenes$Gene<-as.character(rownames(topgenes))
+
+    topgenes<-topgenes[,c(3,1,2)]
+
+    print(kable(head(topgenes,n=20L),col.names=colnames(topgenes),format="markdown",row.names=FALSE,caption="Top 20 genes",digits=100))
+
+    cat('\n')
+
+    HEADER=paste("<br><details><summary><b>","Click HERE to show all gene set members","</b></summary><br><p>",sep=" " )
+
+    cat(HEADER)
+
+    sss<-res$detailed_sets[[i]]
+
+    print(kable(sss,format="markdown",row.names=TRUE,caption="All member genes",digits=100))
+
+    cat('\n')
+
+    cat("<br></p></details>")
+
+    cat("<br><hr>")
+
+}
+
+
+#functions end here
+
+if (d!=1) {
+
+    cat("<h2> Detailed Gene set reports</h2><br>")
+
+    library("reshape2")
+
+    library("ggplot2")
+
+    library("GGally")
+
+    resrows=length(res$detailed_sets)
+
+    ss<-res$ranked_profile
+
+    myres<-head(res$enrichment_result,resrows)
+
+    myres<-myres[,c(1:3, which(names(myres) %in% "p.adjustMANOVA"), which(names(myres) %in% "s.dist") ,4:((d*2)+3)), which(names(myres) %in% "SD")]
+
+    myres[,3:ncol(myres)]<-signif(myres[,3:ncol(myres)],3)
+
+    palette <- colorRampPalette(c("white", "yellow","orange" ,"red","darkred","black"))
+
+    ss_long<-melt(ss)
+
+    if ( d<3 ) {
+
+        xmin=min(ss[,1])
+
+        xmax=max(ss[,1])
+
+        ymin=min(ss[,2])
+
+        ymax=max(ss[,2])
+
+            for ( i in seq_len(resrows )) {
+
+                mydat = NULL                                                    
+
+                mydat$metrics<-names(myres[2:ncol(myres)])
+
+                mydat$values<-unname(t(myres[i,2:ncol(myres)]))
+
+                mydat<-as.data.frame(cbind(mydat$metrics,mydat$values))
+
+                colnames(mydat)<-c("metric","value")
+
+                cat(paste("<b>",as.character(myres[i,1]) ,"</b><br>"))
+
+                print(kable(mydat,format='markdown',caption=as.character(t(myres[i,1]))) )
+
+                cat('\n')
+
+                cat("<br>")
+
+                twodimplot(i)
+
+                cat("<br>")
+
+                topgenelist(i)
+
+                cat("<hr><br>")
+
+            }
+
+        } else {
+
+        for ( i in seq_len(resrows )) {
+
+            mydat = NULL
+
+            mydat$metrics<-names(myres[2:ncol(myres)])
+
+            mydat$values<-unname(t(myres[i,2:ncol(myres)]))
+
+            mydat<-as.data.frame(cbind(mydat$metrics,mydat$values))
+
+            colnames(mydat)<-c("metric","value")
+
+            cat(paste("<b>",as.character(myres[i,1]) ,"</b><br>"))
+
+            print(kable(mydat,format='markdown',digits=5,caption=as.character(t(myres[i,1]))))
+
+            cat('\n')
+
+            cat("<br>")
+
+            ndplot(i)
+
+            cat("<br>")
+
+            topgenelist(i)
+
+            cat("<hr><br>")
+
+        }
+
+    }
+
+}
+```
+
+Here is the session info with all the versions of packages used.
+
+```{r session_info, include=TRUE, echo=TRUE, results='markup'}
+library(pkgload)
+sessionInfo()
+```
+
+END of report
