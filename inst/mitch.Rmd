@@ -361,8 +361,8 @@ if (d==1) {
 
     #1D tauchart
     library("taucharts")
-    library(dplyr)
-    library(gtools)
+    library("dplyr")
+    library("gtools")
 
     numsets=nrow(subset(res$enrichment_result,p.adjustANOVA<0.05))
 
@@ -451,8 +451,10 @@ tauscatter<-function(i){
 
 if (d!=1) {
     library("taucharts")
-    library(dplyr)
-    library(gtools)
+    library("dplyr")
+    library("gtools")
+    library("echarts4r")
+    library("tidyverse")
 
     cat("All sets with FDR<0.05. Try hovering over the points.<br>")
 
@@ -470,17 +472,38 @@ if (d!=1) {
 
         if ( d<3 ) {
 
-            myres<-myres[,c(1,which(names(myres) %in% "p.adjustMANOVA"),2, 4:(4+d-1) , which(names(myres) %in% "s.dist") )]
+            myres2<-myres[,c(1,which(names(myres) %in% "p.adjustMANOVA"),2, 4:(4+d-1) , which(names(myres) %in% "s.dist") )]
 
-            myres$set<-gsub("_"," ",as.character(myres$set))
+            #myres$set<-gsub("_"," ",as.character(myres$set))
+            #colnames(myres)=gsub("\\.","_",colnames(myres))
+            #my_x=colnames(myres)[4]
+            #my_y=colnames(myres)[5]
+            #p<-tauchart(myres) %>% tau_point(my_x,my_y) %>% tau_tooltip()
 
-            colnames(myres)=gsub("\\.","_",colnames(myres))
+            XCOL=colnames(myres2)[4]
+            YCOL=colnames(myres2)[5]
 
-            my_x=colnames(myres)[4]
+            colnames(myres2)[4]<-"xx"
+            colnames(myres2)[5]<-"yy"
 
-            my_y=colnames(myres)[5]
-
-            p<-tauchart(myres) %>% tau_point(my_x,my_y) %>% tau_tooltip()
+            p2<-myres2 %>%  
+                tibble::rownames_to_column("model") %>% 
+                mutate(set = paste(set, setSize, p.adjustMANOVA , s.dist , sep = ",")) %>%
+                e_charts(xx) %>% 
+                e_legend(show = FALSE) %>%
+                e_x_axis(name = XCOL) %>%  # add x axis name
+                e_y_axis(name = YCOL) %>%  # add y axis name
+                e_scatter( xx , yy , bind = set , symbolSize = 10  ) %>%
+                e_tooltip(formatter = htmlwidgets::JS("
+                    function(params){
+                    var vals = params.name.split(',')
+                    return('<strong>' + vals[0] + 
+                    '</strong><br />s.x-axis: ' + parseFloat(params.value[0]).toFixed(2) + 
+                    '<br />s.y-axis: ' +  parseFloat(params.value[1]).toFixed(2)) +
+                    '<br />setSize: ' + vals[1] +
+                    '<br />p-adjust MANOVA: ' + Number(vals[2]).toPrecision(2) +
+                    '<br />s.dist: ' + Number(vals[3]).toPrecision(2)
+                }"))
 
         } else {
 
@@ -497,6 +520,7 @@ if (d!=1) {
     }
 
     htmltools::tagList(p)
+    htmltools::tagList(p2)
 
 }
 
@@ -518,17 +542,38 @@ if (d!=1) {
 
         if ( d<3 ) {
 
-            myres<-myres[,c(1,which(names(myres) %in% "p.adjustMANOVA"),2, 4:(4+d-1) , which(names(myres) %in% "s.dist") )]
+            myres2<-myres[,c(1,which(names(myres) %in% "p.adjustMANOVA"),2, 4:(4+d-1) , which(names(myres) %in% "s.dist") )]
 
-            myres$set<-gsub("_"," ",as.character(myres$set))
+            #myres$set<-gsub("_"," ",as.character(myres$set))
+            #colnames(myres)=gsub("\\.","_",colnames(myres))
+            #my_x=colnames(myres)[4]
+            #my_y=colnames(myres)[5]
+            #p<-tauchart(myres) %>% tau_point(my_x,my_y) %>% tau_tooltip()
 
-            colnames(myres)=gsub("\\.","_",colnames(myres))
+            XCOL=colnames(myres2)[4]
+            YCOL=colnames(myres2)[5]
 
-            my_x=colnames(myres)[4]
+            colnames(myres2)[4]<-"xx"
+            colnames(myres2)[5]<-"yy"
 
-            my_y=colnames(myres)[5]
-
-            p<-tauchart(myres) %>% tau_point(my_x,my_y) %>% tau_tooltip()
+            p2<-myres2 %>%
+                tibble::rownames_to_column("model") %>%
+                mutate(set = paste(set, setSize, p.adjustMANOVA , s.dist , sep = ",")) %>%
+                e_charts(xx) %>%
+                e_legend(show = FALSE) %>%
+                e_x_axis(name = XCOL) %>%  # add x axis name
+                e_y_axis(name = YCOL) %>%  # add y axis name
+                e_scatter( xx , yy , bind = set , symbolSize = 10  ) %>%
+                e_tooltip(formatter = htmlwidgets::JS("
+                    function(params){
+                    var vals = params.name.split(',')
+                    return('<strong>' + vals[0] +
+                    '</strong><br />s.x-axis: ' + parseFloat(params.value[0]).toFixed(2) +
+                    '<br />s.y-axis: ' +  parseFloat(params.value[1]).toFixed(2)) +
+                    '<br />setSize: ' + vals[1] +
+                    '<br />p-adjust MANOVA: ' + Number(vals[2]).toPrecision(2) +
+                    '<br />s.dist: ' + Number(vals[3]).toPrecision(2)
+                }"))
 
         } else {
 
@@ -545,6 +590,7 @@ if (d!=1) {
     }
 
     htmltools::tagList(p)
+    htmltools::tagList(p2)
 
 }
 
@@ -1118,7 +1164,7 @@ if (d!=1) {
 Here is the session info with all the versions of packages used.
 
 ```{r session_info, include=TRUE, echo=TRUE, results='markup'}
-library(pkgload)
+library("pkgload")
 sessionInfo()
 ```
 
