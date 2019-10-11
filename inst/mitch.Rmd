@@ -354,13 +354,12 @@ if ( nsig > 0 ) {
 
 ```
 
-## Enrichment scatterplot with taucharts
-```{r,tauchart1d,results="asis",echo=FALSE, fig.height = 7, fig.width = 7 ,fig.show="all", message=FALSE}
+## Interactive enrichment scatterplot
+```{r,echart1d,results="asis",echo=FALSE, fig.height = 7, fig.width = 7 ,fig.show="all", message=FALSE}
 
 if (d==1) {
 
     #1D tauchart
-    library("taucharts")
     library("dplyr")
     library("gtools")
 
@@ -374,28 +373,42 @@ if (d==1) {
 
     } else {
 
-        # volcano tauchart
-        myres<-subset(res$enrichment_result,p.adjustANOVA<0.05)
-
-        myres$significance<--log10(myres$pANOVA)
-
-        myres$set<-gsub("_"," ",as.character(myres$set))
-
-        myres[,3:ncol(myres)]<-signif(myres[,3:ncol(myres)],3)
-
-        colnames(myres)=gsub("\\.","_",colnames(myres))
-
-        my_x=colnames(myres)[4]
-
-        my_y=colnames(myres)[6]
-
-        p<-tauchart(myres) %>% tau_point(my_x,my_y) %>% tau_tooltip()
-
+        # volcano with echarts4r
         cat("Significance is calculated by -log10(p-value). All points shown are FDR<0.05.<br>")
+
+        library("echarts4r")
+        library("tidyverse")
+
+        myres2<-subset(res$enrichment_result,p.adjustANOVA<0.05)
+        myres2$significance<--log10(myres2$pANOVA)
+
+            XCOL=colnames(myres2)[4]
+            YCOL=colnames(myres2)[6]
+
+            colnames(myres2)[4]<-"xx"
+            colnames(myres2)[6]<-"yy"
+
+            p2<-myres2 %>%
+                tibble::rownames_to_column("model") %>%
+                mutate(set = paste(set, setSize, p.adjustANOVA , sep = ",")) %>%
+                e_charts(xx) %>%
+                e_legend(show = FALSE) %>%
+                e_x_axis(name = XCOL) %>%  # add x axis name
+                e_y_axis(name = YCOL) %>%  # add y axis name
+                e_scatter( xx , yy , bind = set , symbolSize = 10  ) %>%
+                e_tooltip(formatter = htmlwidgets::JS("
+                    function(params){
+                    var vals = params.name.split(',')
+                    return('<strong>' + vals[0] +
+                    '</strong><br />s.x-axis: ' + parseFloat(params.value[0]).toFixed(2) +
+                    '<br />s.y-axis: ' +  parseFloat(params.value[1]).toFixed(2)) +
+                    '<br />setSize: ' + vals[1] +
+                    '<br />p-adjust ANOVA: ' + Number(vals[2]).toPrecision(2)
+                }"))
 
     }
 
-    p
+    p2
 }
 
 if (d==1) {
@@ -404,27 +417,38 @@ if (d==1) {
 
     if (resrows>1) {
 
-        myres<-head(res$enrichment_result,resrows)
+        myres2<-head(res$enrichment_result,resrows)
+        myres2$significance<--log10(myres2$pANOVA)
 
-        myres$significance<--log10(myres$pANOVA)
+            XCOL=colnames(myres2)[4]
+            YCOL=colnames(myres2)[6]
 
-        myres$set<-gsub("_"," ",as.character(myres$set))
+            colnames(myres2)[4]<-"xx"
+            colnames(myres2)[6]<-"yy"
 
-        myres[,3:ncol(myres)]<-signif(myres[,3:ncol(myres)],3)
-
-        colnames(myres)=gsub("\\.","_",colnames(myres))
-
-        my_x=colnames(myres)[4]
-
-        my_y=colnames(myres)[6]
-
-        p<-tauchart(myres) %>% tau_point(my_x,my_y) %>% tau_tooltip()
+            p2<-myres2 %>%
+                tibble::rownames_to_column("model") %>%
+                mutate(set = paste(set, setSize, p.adjustANOVA , sep = ",")) %>%
+                e_charts(xx) %>%
+                e_legend(show = FALSE) %>%
+                e_x_axis(name = XCOL) %>%  # add x axis name
+                e_y_axis(name = YCOL) %>%  # add y axis name
+                e_scatter( xx , yy , bind = set , symbolSize = 10  ) %>%
+                e_tooltip(formatter = htmlwidgets::JS("
+                    function(params){
+                    var vals = params.name.split(',')
+                    return('<strong>' + vals[0] +
+                    '</strong><br />s.x-axis: ' + parseFloat(params.value[0]).toFixed(2) +
+                    '<br />s.y-axis: ' +  parseFloat(params.value[1]).toFixed(2)) +
+                    '<br />setSize: ' + vals[1] +
+                    '<br />p-adjust ANOVA: ' + Number(vals[2]).toPrecision(2)
+                }"))
 
         cat("Significance is calculated by -log10(p-value). Top N sets shown irrespective of FDR.<br>")
 
     }
 
-    p
+    p2
 
 }
 
