@@ -664,22 +664,36 @@ if (d!=1) {
 
     cat('Significance is the -log2(p.adjustMANOVA) and effect size is the s.dist which is the hypotenuse of the s scores.<br>')
 
+    colnames(myres)<-gsub("\\.","_",colnames(myres))
     myres<-res$enrichment_result
-
-    myres[,3:ncol(myres)]<-signif(myres[,3:ncol(myres)],3)
-
     myres$significance<--log2(myres$p.adjustMANOVA)
+    myres$set<-sub(",","",myres$set)
 
-    myres$set<-gsub("_"," ",as.character(myres$set))
+    XCOL=colnames(myres)[ncol(myres)-3]
+    YCOL=colnames(myres)[ncol(myres)]
 
-    colnames(myres)=gsub("\\.","_",colnames(myres))
+    colnames(myres)[ncol(myres)-3]<-"xx"
+    colnames(myres)[ncol(myres)]<-"yy"
 
-    my_x=colnames(myres)[ncol(myres)-2]
+    p2<-myres %>%
+        tibble::rownames_to_column("model") %>%
+        mutate(set = paste( set , setSize , p.adjustMANOVA , sep = ",")) %>%
+        e_charts(xx) %>%
+        e_legend(show = FALSE) %>%
+        e_x_axis(name = XCOL) %>%  # add x axis name
+        e_y_axis(name = YCOL) %>%  # add y axis name
+        e_scatter( xx , yy , bind = set , symbolSize = 10  ) %>%
+        e_tooltip(formatter = htmlwidgets::JS("
+            function(params){
+            var vals = params.name.split(',')
+            return('<strong>' + vals[0] +
+            '</strong><br />s.x-axis: ' + parseFloat(params.value[0]).toFixed(2) +
+            '<br />s.y-axis: ' +  parseFloat(params.value[1]).toFixed(2)) +
+            '<br />setSize: ' + vals[1] +
+            '<br />p-adjust MANOVA: ' + Number(vals[2]).toPrecision(2)
+        }"))
 
-    my_y=colnames(myres)[ncol(myres)]
-
-    tauchart(myres) %>% tau_point(my_x,my_y) %>% tau_tooltip()
-
+    p2
 }
 ```
 
