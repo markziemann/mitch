@@ -376,7 +376,6 @@ if (d==1) {
         cat("Significance is calculated by -log10(p-value). All points shown are FDR<0.05.<br>")
 
         library("echarts4r")
-        library("tidyverse")
 
         myres2<-subset(res$enrichment_result,p.adjustANOVA<0.05)
         myres2$significance<--log10(myres2$pANOVA)
@@ -489,7 +488,6 @@ if (d!=1) {
     library("dplyr")
     library("gtools")
     library("echarts4r")
-    library("tidyverse")
 
     cat("All sets with FDR<0.05. Try hovering over the points.<br>")
 
@@ -500,6 +498,7 @@ if (d!=1) {
     if (numsets<1){
 
         message("No significant enrichments found.")
+        p2<-list()
 
     } else {
 

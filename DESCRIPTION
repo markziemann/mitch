@@ -1,6 +1,6 @@
 Package: mitch
 Title: Multidimensional Gene Set Enrichment Analysis
-Version: 0.2.5
+Version: 0.2.6
 Authors@R: c(
     person(given = "Mark",
            family = "Ziemann",
@@ -17,7 +17,7 @@ Description: Mitch applies rank-MANOVA to identify differential gene set enrichm
   Mitch can output data in the form of a high resolution PDF or as a self contained HTML report. 
 Depends: R (>= 3.6.0)
 Suggests:
-Imports: pkgload, fs, remotes, processx, stats, tidyselect, grDevices, graphics, utils, MASS, plyr, reshape2, parallel, pbmcapply, GGally, grid, gridExtra, knitr, rmarkdown, ggplot2, gplots, beeswarm
+Imports: pkgload, fs, remotes, processx, stats, tidyselect, grDevices, graphics, utils, MASS, plyr, reshape2, parallel, pbmcapply, GGally, grid, gridExtra, knitr, rmarkdown, ggplot2, gplots, beeswarm, echarts4r
 License: CC BY-SA 4.0 + file LICENSE
 Encoding: UTF-8
 LazyData: true
