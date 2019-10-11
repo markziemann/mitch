@@ -359,7 +359,6 @@ if ( nsig > 0 ) {
 
 if (d==1) {
 
-    #1D tauchart
     library("dplyr")
     library("gtools")
 
@@ -381,6 +380,7 @@ if (d==1) {
 
         myres2<-subset(res$enrichment_result,p.adjustANOVA<0.05)
         myres2$significance<--log10(myres2$pANOVA)
+        myres2$set<-sub(",","",myres2$set)
 
             XCOL=colnames(myres2)[4]
             YCOL=colnames(myres2)[6]
@@ -419,6 +419,7 @@ if (d==1) {
 
         myres2<-head(res$enrichment_result,resrows)
         myres2$significance<--log10(myres2$pANOVA)
+        myres2$set<-sub(",","",myres2$set)
 
             XCOL=colnames(myres2)[4]
             YCOL=colnames(myres2)[6]
@@ -452,7 +453,7 @@ if (d==1) {
 
 }
 
-```{r,tauchart2,results="asis",echo=FALSE, fig.height = 7, fig.width = 7 ,fig.show="all", message=FALSE}
+```{r,echart2d,results="asis",echo=FALSE, fig.height = 7, fig.width = 7 ,fig.show="all", message=FALSE}
 
 tauscatter<-function(i){
 
@@ -497,12 +498,7 @@ if (d!=1) {
         if ( d<3 ) {
 
             myres2<-myres[,c(1,which(names(myres) %in% "p.adjustMANOVA"),2, 4:(4+d-1) , which(names(myres) %in% "s.dist") )]
-
-            #myres$set<-gsub("_"," ",as.character(myres$set))
-            #colnames(myres)=gsub("\\.","_",colnames(myres))
-            #my_x=colnames(myres)[4]
-            #my_y=colnames(myres)[5]
-            #p<-tauchart(myres) %>% tau_point(my_x,my_y) %>% tau_tooltip()
+            myres2$set<-sub(",","",myres2$set)
 
             XCOL=colnames(myres2)[4]
             YCOL=colnames(myres2)[5]
@@ -567,12 +563,7 @@ if (d!=1) {
         if ( d<3 ) {
 
             myres2<-myres[,c(1,which(names(myres) %in% "p.adjustMANOVA"),2, 4:(4+d-1) , which(names(myres) %in% "s.dist") )]
-
-            #myres$set<-gsub("_"," ",as.character(myres$set))
-            #colnames(myres)=gsub("\\.","_",colnames(myres))
-            #my_x=colnames(myres)[4]
-            #my_y=colnames(myres)[5]
-            #p<-tauchart(myres) %>% tau_point(my_x,my_y) %>% tau_tooltip()
+            myres2$set<-sub(",","",myres2$set)
 
             XCOL=colnames(myres2)[4]
             YCOL=colnames(myres2)[5]
