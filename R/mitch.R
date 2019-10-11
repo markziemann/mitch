@@ -69,7 +69,7 @@ mapGeneIds <- function(y, z) {
     z
 }
 
-edger_score <- function(y) {
+edger_score <- function(y , geneIDcol = geneIDcol ) {
     
     NCOL = ncol(y)
     if (NCOL < 2) {
@@ -106,7 +106,7 @@ edger_score <- function(y) {
 }
 
 
-deseq2_score <- function(y) {
+deseq2_score <- function(y , geneIDcol = geneIDcol ) {
     
     NCOL = ncol(y)
     if (NCOL < 2) {
@@ -142,7 +142,7 @@ deseq2_score <- function(y) {
     z
 }
 
-limma_score <- function(y) {
+limma_score <- function(y , geneIDcol = geneIDcol ) {
     
     NCOL = ncol(y)
     if (NCOL < 2) {
@@ -178,7 +178,7 @@ limma_score <- function(y) {
     z
 }
 
-swish_score <- function(y) {
+swish_score <- function(y , geneIDcol = geneIDcol ) {
 
     NCOL = ncol(y)
     if (NCOL < 2) {
@@ -214,7 +214,7 @@ swish_score <- function(y) {
     z
 }
 
-absseq_score <- function(y) {
+absseq_score <- function(y, geneIDcol = geneIDcol ) {
     
     NCOL = ncol(y)
     if (NCOL < 2) {
@@ -251,7 +251,7 @@ absseq_score <- function(y) {
 }
 
 
-sleuth_score <- function(y) {
+sleuth_score <- function(y , geneIDcol = geneIDcol ) {
     
     NCOL = ncol(y)
     if (NCOL < 2) {
@@ -288,7 +288,7 @@ sleuth_score <- function(y) {
 }
 
 
-topconfect_score <- function(y) {
+topconfect_score <- function(y , geneIDcol = geneIDcol ) {
     
     FCCOL = length(which(names(y) == "confect"))
     if (FCCOL > 1) {
@@ -329,7 +329,7 @@ topconfect_score <- function(y) {
 }
 
 
-seurat_score <- function(y) {
+seurat_score <- function(y , geneIDcol = geneIDcol ) {
     
     NCOL = ncol(y)
     if (NCOL < 2) {
@@ -369,7 +369,7 @@ seurat_score <- function(y) {
 }
 
 
-muscat_score <- function(y) {
+muscat_score <- function(y , geneIDcol = geneIDcol ) {
     
     NCOL = ncol(y)
     if (NCOL < 2) {
@@ -406,7 +406,7 @@ muscat_score <- function(y) {
 }
 
 
-preranked_score <- function(y, joinType ) {
+preranked_score <- function(y, joinType , geneIDcol = geneIDcol ) {
 
     if (!is.null(attributes(y)$geneIDcol)) {
         NCOL = ncol(y)
@@ -883,6 +883,24 @@ detailed_sets <- function(res, resrows = 50) {
     dat
 }
 
+
+get_os <- function(){
+    sysinf <- Sys.info()
+    if (!is.null(sysinf)){
+        os <- sysinf['sysname']
+        if (os == 'Darwin')
+            os <- "osx"
+    } else { ## mystery machine
+        os <- .Platform$OS.type
+        if (grepl("^darwin", R.version$os))
+            os <- "osx"
+        if (grepl("linux-gnu", R.version$os))
+            os <- "linux"
+    }
+    tolower(os)
+}
+
+
 #' mitch_calc
 #'
 #' This function performs multivariate gene set enrichment analysis. 
@@ -922,7 +940,6 @@ detailed_sets <- function(res, resrows = 50) {
 #' # prioritise based on effect size 
 #' resExample<-mitch_calc(myImportedData,genesetsExample,priority='effect',
 #' minsetsize=5,cores=2)
-
 mitch_calc <- function(x, genesets, minsetsize = 10, cores = detectCores() - 1, resrows = 50, 
     priority = NULL) {
     
@@ -930,6 +947,7 @@ mitch_calc <- function(x, genesets, minsetsize = 10, cores = detectCores() - 1, 
     input_profile <- x
     input_genesets <- genesets
     ranked_profile <- mitch_rank(input_profile)
+    if (get_os() == "windows") { cores=1 }
     
     if (ncol(x) > 1) {
         enrichment_result <- MANOVA(ranked_profile, genesets, minsetsize = minsetsize, 
@@ -1496,12 +1514,19 @@ mitch_plots <- function(res, outfile = "Rplots.pdf", cores = detectCores() - 1) 
 #' mitch_report(resExample,'outres2.html')
 #' @import knitr
 #' @importFrom rmarkdown render
+#' @import echarts4r
 #' @import tidyselect
 #' @import processx
 #' @import remotes
+#' @import pkgload
 #' @import fs
 mitch_report <- function(res, outfile) {
-    
+
+    df <- data.frame(x = seq(20), y = rnorm(20, 10, 3))
+    trash<-df %>% 
+      e_charts(x) %>% 
+      e_scatter(y, symbol_size = 10)
+
     HTMLNAME <- paste(outfile, ".html", sep = "")
     HTMLNAME <- gsub(".html.html", ".html", HTMLNAME)
     HTMLNAME <- paste(getwd(), HTMLNAME, sep = "/")
