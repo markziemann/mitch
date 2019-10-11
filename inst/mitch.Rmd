@@ -455,27 +455,37 @@ if (d==1) {
 
 ```{r,echart2d,results="asis",echo=FALSE, fig.height = 7, fig.width = 7 ,fig.show="all", message=FALSE}
 
-tauscatter<-function(i){
-
+echartscatter<-function(i){
     my_x=plan[i,1]
-
     my_y=plan[i,2]
+    XCOL=colnames(myres)[3+my_x]
+    YCOL=colnames(myres)[3+my_y]
+    myres$set<-sub(","," ",as.character(myres$set))
+    colnames(myres)[3+my_x]<-"xx"
+    colnames(myres)[3+my_y]<-"yy"
 
-    colnames(myres)=gsub("\\.","_",colnames(myres))
-
-    my_x=colnames(myres)[3+my_x]
-
-    my_y=colnames(myres)[3+my_y]
-
-    myres$set<-gsub("_"," ",as.character(myres$set))
-
-    tauchart(myres) %>% tau_point(my_x,my_y) %>% tau_tooltip()
-
+    p2<-myres %>%
+        tibble::rownames_to_column("model") %>%
+        mutate(set = paste(set, setSize, p.adjustMANOVA , s.dist , sep = ",")) %>%
+        e_charts(xx , height = 300 ) %>%
+        e_legend(show = FALSE) %>%
+        e_x_axis(name = XCOL) %>%  # add x axis name
+        e_y_axis(name = YCOL) %>%  # add y axis name
+        e_scatter( xx , yy , bind = set , symbolSize = 10  ) %>%
+        e_tooltip(formatter = htmlwidgets::JS("
+            function(params){
+            var vals = params.name.split(',')
+            return('<strong>' + vals[0] +
+            '</strong><br />s.x-axis: ' + parseFloat(params.value[0]).toFixed(2) +
+            '<br />s.y-axis: ' +  parseFloat(params.value[1]).toFixed(2)) +
+            '<br />setSize: ' + vals[1] +
+            '<br />p-adjust MANOVA: ' + Number(vals[2]).toPrecision(2) +
+            '<br />s.dist: ' + Number(vals[3]).toPrecision(2)
+        }"))
+    p2
 }
 
-
 if (d!=1) {
-    library("taucharts")
     library("dplyr")
     library("gtools")
     library("echarts4r")
@@ -526,20 +536,15 @@ if (d!=1) {
                 }"))
 
         } else {
-
             plan<-combinations(n = d, r = 2, v = seq_len(d), repeats.allowed = FALSE)
-
             myres<-myres[,c(1, which(names(myres) %in% "p.adjustMANOVA") ,2,4:(4+d-1), which(names(myres) %in% "s.dist") ), which(names(myres) %in% "SD")]
-
-            p<-list()
-
-            p<-lapply( seq_len(nrow(plan)) , tauscatter)
+            p2<-list()
+            p2<-lapply( seq_len(nrow(plan)) , echartscatter)
 
         }
 
     }
 
-    htmltools::tagList(p)
     htmltools::tagList(p2)
 
 }
@@ -598,7 +603,7 @@ if (d!=1) {
 
             p<-list()
 
-            p<-lapply( seq_len(nrow(plan)) , tauscatter)
+            p<-lapply( seq_len(nrow(plan)) , echartscatter)
 
         }
 
