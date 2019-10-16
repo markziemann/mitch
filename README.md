@@ -7,7 +7,6 @@ Mitch is an R package for multi-dimensional enrichment analysis. At it's heart, 
 ```
 install.packages("devtools")
 library("devtools")
-devtools::install_github("hrbrmstr/taucharts")
 devtools::install_github("markziemann/Mitch")
 library("mitch")
 ```
@@ -73,7 +72,6 @@ Can be done like this:
 ```
 mitch_report(res,"myreport.html")
 ```
-If you receive an error here, ensure that [Taucharts](https://github.com/hrbrmstr/taucharts) is installed properly.
 Take a look at an [example report](https://github.com/markziemann/Mitch/blob/master/figs/myreport.html).
 
 ### Generate high resolution plots
