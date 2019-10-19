@@ -405,6 +405,29 @@ muscat_score <- function(y , geneIDcol = geneIDcol ) {
     z
 }
 
+scde_score <- function(y , geneIDcol = geneIDcol ) {
+
+    ZCOL = length(which(names(y) == "Z"))
+    if (ZCOL > 1) {
+        stop("Error, there is more than 1 column named 'Z' in the input")
+    }
+    if (ZCOL < 1) {
+        stop("Error, there is no column named 'Z' in the input")
+    }
+
+    s <- y$Z
+
+    if (!is.null(attributes(y)$geneIDcol)) {
+        g <- y[, attributes(y)$geneIDcol]
+    } else {
+        g <- rownames(y)
+    }
+    z <- data.frame(g, s, stringsAsFactors = FALSE)
+    colnames(z) <- c("geneidentifiers", "y")
+    z <- mapGeneIds(y, z)
+    z
+}
+
 
 preranked_score <- function(y, joinType , geneIDcol = geneIDcol ) {
 
@@ -532,6 +555,8 @@ mitch_import <- function(x, DEtype, geneIDcol = NULL, geneTable = NULL, joinType
         xx <- lapply(x, muscat_score)
     } else if (DEtype == "swish") {
         xx <- lapply(x, swish_score)
+    } else if (DEtype == "scde") {
+        xx <- lapply(x, scde_score)
     } else if (DEtype == "preranked") {
         xx <- lapply(x, preranked_score, joinType = joinType)
     } else {
