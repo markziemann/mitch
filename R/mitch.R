@@ -468,6 +468,44 @@ mast_score <- function(y , geneIDcol = geneIDcol ) {
     z
 }
 
+
+desingle_score <- function(y , geneIDcol = geneIDcol ) {
+
+    NCOL = ncol(y)
+    if (NCOL < 2) {
+        stop("Error: there are <2 columns in the input, 'pvalue' and 'foldChange' are required ")
+    }
+
+    PCOL = length(which(names(y) == "pvalue"))
+    if (PCOL > 1) {
+        stop("Error, there is more than 1 column named 'pvalue' in the input")
+    }
+    if (PCOL < 1) {
+        stop("Error, there is no column named 'pvalue' in the input")
+    }
+
+    FCCOL = length(which(names(y) == "foldChange"))
+    if (FCCOL > 1) {
+        stop("Error, there is more than 1 column named 'foldChange' in the input")
+    }
+    if (FCCOL < 1) {
+        stop("Error, there is no column named 'foldChange' in the input")
+    }
+
+    s <- sign(log2(y$foldChange)) * -log10(y$pvalue)
+
+    if (!is.null(attributes(y)$geneIDcol)) {
+        g <- y[, attributes(y)$geneIDcol]
+    } else {
+        g <- rownames(y)
+    }
+    z <- data.frame(g, s, stringsAsFactors = FALSE)
+    colnames(z) <- c("geneidentifiers", "y")
+    z <- mapGeneIds(y, z)
+    z
+}
+
+
 preranked_score <- function(y, joinType , geneIDcol = geneIDcol ) {
 
     if (!is.null(attributes(y)$geneIDcol)) {
@@ -598,6 +636,8 @@ mitch_import <- function(x, DEtype, geneIDcol = NULL, geneTable = NULL, joinType
         xx <- lapply(x, scde_score)
     } else if (DEtype == "mast" ) {
         xx <- lapply(x, mast_score)
+    } else if (DEtype == "desingle" ) {
+        xx <- lapply(x, desingle_score)
     } else if (DEtype == "preranked") {
         xx <- lapply(x, preranked_score, joinType = joinType)
     } else {
