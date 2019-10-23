@@ -390,6 +390,91 @@ noiseq_score <- function(y , geneIDcol = geneIDcol ) {
 }
 
 
+tcc_score <- function(y , geneIDcol = geneIDcol ) {
+
+    NCOL = ncol(y)
+    if (NCOL < 2) {
+        stop("Error: there are <2 columns in the input, 'p.value' and 'm.value' are required ")
+    }
+
+    PCOL = length(which(names(y) == "p.value"))
+    if (PCOL > 1) {
+        stop("Error, there is more than 1 column named 'p.value' in the input")
+    }
+    if (PCOL < 1) {
+        stop("Error, there is no column named 'p.value' in the input")
+    }
+
+    FCCOL = length(which(names(y) == "m.value"))
+    if (FCCOL > 1) {
+        stop("Error, there is more than 1 column named 'm.value' in the input")
+    }
+    if (FCCOL < 1) {
+        stop("Error, there is no column named 'm.value' in the input")
+    }
+
+    s <- sign(y$m.value) * -log10(y$p.value)
+
+    if (!is.null(attributes(y)$geneIDcol)) {
+        g <- y[, attributes(y)$geneIDcol]
+    } else {
+        g <- rownames(y)
+    }
+    z <- data.frame(g, s, stringsAsFactors = FALSE)
+    colnames(z) <- c("geneidentifiers", "y")
+    z <- mapGeneIds(y, z)
+    z
+}
+
+
+deds_score <- function(y , geneIDcol = geneIDcol ) {
+
+    ZCOL = length(which(names(y) == "t"))
+    if (ZCOL > 1) {
+        stop("Error, there is more than 1 column named 't' in the input")
+    }
+    if (ZCOL < 1) {
+        stop("Error, there is no column named 't' in the input")
+    }
+
+    s <- y$t
+
+    if (!is.null(attributes(y)$geneIDcol)) {
+        g <- y[, attributes(y)$geneIDcol]
+    } else {
+        g <- rownames(y)
+    }
+    z <- data.frame(g, s, stringsAsFactors = FALSE)
+    colnames(z) <- c("geneidentifiers", "y")
+    z <- mapGeneIds(y, z)
+    z
+}
+
+
+cuffdiff_score <- function(y , geneIDcol = geneIDcol ) {
+
+    ZCOL = length(which(names(y) == "test_stat"))
+    if (ZCOL > 1) {
+        stop("Error, there is more than 1 column named 'test_stat' in the input")
+    }
+    if (ZCOL < 1) {
+        stop("Error, there is no column named 'test_stat' in the input")
+    }
+
+    s <- y$test_stat
+
+    if (!is.null(attributes(y)$geneIDcol)) {
+        g <- y[, attributes(y)$geneIDcol]
+    } else {
+        g <- rownames(y)
+    }
+    z <- data.frame(g, s, stringsAsFactors = FALSE)
+    colnames(z) <- c("geneidentifiers", "y")
+    z <- mapGeneIds(y, z)
+    z
+}
+
+
 seurat_score <- function(y , geneIDcol = geneIDcol ) {
     
     NCOL = ncol(y)
@@ -600,16 +685,17 @@ preranked_score <- function(y, joinType , geneIDcol = geneIDcol ) {
 #' mitch_import
 #'
 #' This function imports differential omics data from common differential tools 
-#' like edgeR, limma, DESeq2, Sleuth, ABSSeq and Seurat. It calculates a 
-#' summarised differential expression metric by multiplying the sign of the log
-#' fold change by the -log10 of the p-value. If this behaviour is not desired, 
-#' mitch_import can be bypassed in favour of another scoring metric.
+#' like edgeR, limma and DESeq2. It calculates a summarised differential
+#' expression metric by multiplying the sign of the log fold change by the 
+#' -log10 of the p-value. If this behaviour is not desired, mitch_import can be
+#' bypassed in favour of another scoring metric.
 #' @param x a list of differential expression tables
 #' @param DEtype the program that generated the differential expression table
-#' Valid options are 'edgeR', 'DESeq2', 'limma', 'ABSSeq', 'Seurat', 'muscat',
-#' 'swish' and 'preranked'. Where 'preranked' is a dataframe containing the 
-#' rank statistic and gene ID (either in rowname or separate column) and
-#' nothing else.
+#' Valid options are 'edgeR', 'DESeq2', 'limma', 'ABSSeq', 'Sleuth', 'Seurat',
+#' 'topConfects', 'muscat', 'Swish', 'scDE', 'MAST', 'DEsingle', 'ballgown',
+#' 'NOIseq', 'TCC', 'DEDS', 'cuffdiff' and 'preranked'. Where 'preranked' is 
+#' a dataframe containing the rank statistic and gene ID (either in rowname or
+#' separate column) and nothing else.
 #' @param geneIDcol the column containing gene names. If gene names are 
 #' @param joinType the type of join to perform, either 'inner' or 'full'.
 #' By default, joins are 'inner' except for Seurat and muscat where full is used.
@@ -675,6 +761,10 @@ mitch_import <- function(x, DEtype, geneIDcol = NULL, geneTable = NULL, joinType
     
     DEtype = tolower(DEtype)
     
+    validDEtype = c("edger", "deseq2", "limma", "absseq", "sleuth", "seurat",
+        "topconfects", "muscat", "swish", "scde", "mast", "desingle", 
+        "ballgown", "noiseq", "tcc", "deds", "cuffdiff", "preranked")
+
     if (DEtype == "edger") {
         xx <- lapply(x, edger_score)
     } else if (DEtype == "deseq2") {
@@ -691,7 +781,7 @@ mitch_import <- function(x, DEtype, geneIDcol = NULL, geneTable = NULL, joinType
         xx <- lapply(x, topconfect_score)
     } else if (DEtype == "muscat") {
         xx <- lapply(x, muscat_score)
-    } else if (DEtype == "swish") {
+    } else if (DEtype == "swish" || DEtype == "fishpond") {
         xx <- lapply(x, swish_score)
     } else if (DEtype == "scde") {
         xx <- lapply(x, scde_score)
@@ -703,10 +793,16 @@ mitch_import <- function(x, DEtype, geneIDcol = NULL, geneTable = NULL, joinType
         xx <- lapply(x, ballgown_score)
     } else if (DEtype == "noiseq" ) {
         xx <- lapply(x, noiseq_score)
+    } else if (DEtype == "tcc" ) {
+        xx <- lapply(x, tcc_score)
+    } else if (DEtype == "deds" ) {
+        xx <- lapply(x, deds_score)
+    } else if (DEtype == "cuffdiff" ) {
+        xx <- lapply(x, cuffdiff_score)
     } else if (DEtype == "preranked") {
         xx <- lapply(x, preranked_score, joinType = joinType)
     } else {
-        stop("Specified DEtype does not match one of the following: \"deseq2\", \"limma\", \"absseq\", \"sleuth\", \"seurat\", \"topconfects\".")
+        stop(paste("Specified DEtype does not match one of the following:",validDEtype))
     }
     
     # give the colums a unique name otherwise join_all will fail
