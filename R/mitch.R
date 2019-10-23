@@ -429,6 +429,45 @@ scde_score <- function(y , geneIDcol = geneIDcol ) {
 }
 
 
+mast_score <- function(y , geneIDcol = geneIDcol ) {
+
+    NCOL = ncol(y)
+    if (NCOL < 2) {
+        stop("Error: there are <2 columns in the input, 'Pr(>Chisq)' and 'coef' are required ")
+    }
+
+    PCOL = length(which(names(y) == "Pr(>Chisq)"))
+    if (PCOL > 1) {
+        stop("Error, there is more than 1 column named 'Pr(>Chisq)' in the input")
+    }
+    if (PCOL < 1) {
+        stop("Error, there is no column named 'Pr(>Chisq)' in the input")
+    }
+
+    FCCOL = length(which(names(y) == "coef"))
+    if (FCCOL > 1) {
+        stop("Error, there is more than 1 column named 'coef' in the input")
+    }
+    if (FCCOL < 1) {
+        stop("Error, there is no column named 'coef' in the input")
+    }
+
+    # because data.table object  doesn't seem to work
+    y<-as.data.frame(y)
+
+    s <- sign(y$coef) * -log10(y[,"Pr(>Chisq)"])
+
+    if (!is.null(attributes(y)$geneIDcol)) {
+        g <- y[, attributes(y)$geneIDcol]
+    } else {
+        g <- rownames(y)
+    }
+    z <- data.frame(g, s, stringsAsFactors = FALSE)
+    colnames(z) <- c("geneidentifiers", "y")
+    z <- mapGeneIds(y, z)
+    z
+}
+
 preranked_score <- function(y, joinType , geneIDcol = geneIDcol ) {
 
     if (!is.null(attributes(y)$geneIDcol)) {
@@ -557,6 +596,8 @@ mitch_import <- function(x, DEtype, geneIDcol = NULL, geneTable = NULL, joinType
         xx <- lapply(x, swish_score)
     } else if (DEtype == "scde") {
         xx <- lapply(x, scde_score)
+    } else if (DEtype == "mast" ) {
+        xx <- lapply(x, mast_score)
     } else if (DEtype == "preranked") {
         xx <- lapply(x, preranked_score, joinType = joinType)
     } else {
