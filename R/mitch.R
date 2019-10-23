@@ -329,6 +329,67 @@ topconfect_score <- function(y , geneIDcol = geneIDcol ) {
 }
 
 
+ballgown_score <- function(y , geneIDcol = geneIDcol ) {
+
+    NCOL = ncol(y)
+    if (NCOL < 2) {
+        stop("Error: there are <2 columns in the input, 'pval' and 'fc' are required ")
+    }
+
+    PCOL = length(which(names(y) == "pval"))
+    if (PCOL > 1) {
+        stop("Error, there is more than 1 column named 'pval' in the input")
+    }
+    if (PCOL < 1) {
+        stop("Error, there is no column named 'pval' in the input")
+    }
+
+    FCCOL = length(which(names(y) == "fc"))
+    if (FCCOL > 1) {
+        stop("Error, there is more than 1 column named 'fc' in the input")
+    }
+    if (FCCOL < 1) {
+        stop("Error, there is no column named 'fc' in the input")
+    }
+
+    s <- sign(log2(y$fc)) * -log10(y$pval)
+
+    if (!is.null(attributes(y)$geneIDcol)) {
+        g <- y[, attributes(y)$geneIDcol]
+    } else {
+        g <- rownames(y)
+    }
+    z <- data.frame(g, s, stringsAsFactors = FALSE)
+    colnames(z) <- c("geneidentifiers", "y")
+    z <- mapGeneIds(y, z)
+    z
+}
+
+
+noiseq_score <- function(y , geneIDcol = geneIDcol ) {
+
+    ZCOL = length(which(names(y) == "ranking"))
+    if (ZCOL > 1) {
+        stop("Error, there is more than 1 column named 'ranking' in the input")
+    }
+    if (ZCOL < 1) {
+        stop("Error, there is no column named 'ranking' in the input")
+    }
+
+    s <- y$ranking
+
+    if (!is.null(attributes(y)$geneIDcol)) {
+        g <- y[, attributes(y)$geneIDcol]
+    } else {
+        g <- rownames(y)
+    }
+    z <- data.frame(g, s, stringsAsFactors = FALSE)
+    colnames(z) <- c("geneidentifiers", "y")
+    z <- mapGeneIds(y, z)
+    z
+}
+
+
 seurat_score <- function(y , geneIDcol = geneIDcol ) {
     
     NCOL = ncol(y)
@@ -638,6 +699,10 @@ mitch_import <- function(x, DEtype, geneIDcol = NULL, geneTable = NULL, joinType
         xx <- lapply(x, mast_score)
     } else if (DEtype == "desingle" ) {
         xx <- lapply(x, desingle_score)
+    } else if (DEtype == "ballgown" ) {
+        xx <- lapply(x, ballgown_score)
+    } else if (DEtype == "noiseq" ) {
+        xx <- lapply(x, noiseq_score)
     } else if (DEtype == "preranked") {
         xx <- lapply(x, preranked_score, joinType = joinType)
     } else {
