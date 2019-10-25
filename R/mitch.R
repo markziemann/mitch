@@ -130,78 +130,6 @@ deseq2_score <- function(y , geneIDcol = geneIDcol ) {
 }
 
 
-limma_score <- function(y , geneIDcol = geneIDcol ) {
-    
-    NCOL = ncol(y)
-    if (NCOL < 2) {
-        stop("Error: there are <2 columns in the input, 'P.Value' and 'logFC' are required ")
-    }
-    
-    PCOL = length(which(names(y) == "P.Value"))
-    if (PCOL > 1) {
-        stop("Error, there is more than 1 column named 'P.Value' in the input")
-    }
-    if (PCOL < 1) {
-        stop("Error, there is no column named 'P.Value' in the input")
-    }
-    
-    FCCOL = length(which(names(y) == "logFC"))
-    if (FCCOL > 1) {
-        stop("Error, there is more than 1 column named 'logFC' in the input")
-    }
-    if (FCCOL < 1) {
-        stop("Error, there is no column named 'logFC' in the input")
-    }
-    
-    s <- sign(y$logFC) * -log10(y$P.Value)
-    
-    if (!is.null(attributes(y)$geneIDcol)) {
-        g <- y[, attributes(y)$geneIDcol]
-    } else {
-        g <- rownames(y)
-    }
-    z <- data.frame(g, s, stringsAsFactors = FALSE)
-    colnames(z) <- c("geneidentifiers", "y")
-    z <- mapGeneIds(y, z)
-    z
-}
-
-swish_score <- function(y , geneIDcol = geneIDcol ) {
-
-    NCOL = ncol(y)
-    if (NCOL < 2) {
-        stop("Error: there are <2 columns in the input, 'pvalue' and 'log2FC' are required ")
-    }
-
-    PCOL = length(which(names(y) == "pvalue"))
-    if (PCOL > 1) {
-        stop("Error, there is more than 1 column named 'pvalue' in the input")
-    }
-    if (PCOL < 1) {
-        stop("Error, there is no column named 'pvalue' in the input")
-    }
-
-    FCCOL = length(which(names(y) == "log2FC"))
-    if (FCCOL > 1) {
-        stop("Error, there is more than 1 column named 'log2FC' in the input")
-    }
-    if (FCCOL < 1) {
-        stop("Error, there is no column named 'log2FC' in the input")
-    }
-
-    s <- sign(y$log2FC) * -log10(y$pvalue)
-
-    if (!is.null(attributes(y)$geneIDcol)) {
-        g <- y[, attributes(y)$geneIDcol]
-    } else {
-        g <- rownames(y)
-    }
-    z <- data.frame(g, s, stringsAsFactors = FALSE)
-    colnames(z) <- c("geneidentifiers", "y")
-    z <- mapGeneIds(y, z)
-    z
-}
-
 absseq_score <- function(y, geneIDcol = geneIDcol ) {
     
     NCOL = ncol(y)
@@ -467,23 +395,23 @@ seurat_score <- function(y , geneIDcol = geneIDcol ) {
     
     NCOL = ncol(y)
     if (NCOL < 2) {
-        stop("Error: there are <2 columns in the input, 'PValue' and 'logFC' are required ")
+        stop("Error: there are <2 columns in the input, 'p_val' and 'avg_logFC' are required ")
     }
     
     PCOL = length(which(names(y) == "p_val"))
     if (PCOL > 1) {
-        stop("Error, there is more than 1 column named 'PValue' in the input")
+        stop("Error, there is more than 1 column named 'p_val' in the input")
     }
     if (PCOL < 1) {
-        stop("Error, there is no column named 'PValue' in the input")
+        stop("Error, there is no column named 'p_val' in the input")
     }
     
     FCCOL = length(which(names(y) == "avg_logFC"))
     if (FCCOL > 1) {
-        stop("Error, there is more than 1 column named 'logFC' in the input")
+        stop("Error, there is more than 1 column named 'avg_logFC' in the input")
     }
     if (FCCOL < 1) {
-        stop("Error, there is no column named 'logFC' in the input")
+        stop("Error, there is no column named 'avg_logFC' in the input")
     }
     
     s <- sign(y$avg_logFC) * -log10(y$p_val)
@@ -640,6 +568,224 @@ desingle_score <- function(y , geneIDcol = geneIDcol ) {
 }
 
 
+dmrcate_score <- function(y , geneIDcol = geneIDcol ) {
+
+    NCOL = ncol(y)
+    if (NCOL < 2) {
+        stop("Error: there are <2 columns in the input, 'Stouffer' and 'meanbetafc' are required ")
+    }
+
+    PCOL = length(which(names(y) == "Stouffer"))
+    if (PCOL > 1) {
+        stop("Error, there is more than 1 column named 'Stouffer' in the input")
+    }
+    if (PCOL < 1) {
+        stop("Error, there is no column named 'Stouffer' in the input")
+    }
+
+    FCCOL = length(which(names(y) == "meanbetafc"))
+    if (FCCOL > 1) {
+        stop("Error, there is more than 1 column named 'meanbetafc' in the input")
+    }
+    if (FCCOL < 1) {
+        stop("Error, there is no column named 'meanbetafc' in the input")
+    }
+
+    y<-as.data.frame(y)
+    s <- sign(y$meanbetafc) * -log10(y$Stouffer)
+
+    if (!is.null(attributes(y)$geneIDcol)) {
+        g <- y[, attributes(y)$geneIDcol]
+    } else {
+        g <- rownames(y)
+    }
+    z <- data.frame(g, s, stringsAsFactors = FALSE)
+    colnames(z) <- c("geneidentifiers", "y")
+    z <- mapGeneIds(y, z)
+    z
+}
+
+
+dep_score <- function(y , geneIDcol = geneIDcol ) {
+
+    NCOL = ncol(y)
+    if (NCOL < 2) {
+        stop("Error: there are <2 columns in the input, '*p.val' and '*ratio' are required ")
+    }
+
+    PCOL = length(grep("p.val",names(y)))
+    if (PCOL > 1) {
+        message("Note, using the leftmost column with '*p.val' in the name")
+    }
+    if (PCOL < 1) {
+        stop("Error, there is no column named '*p.val' in the input")
+    }
+
+    FCCOL = length(grep("ratio",names(y)))
+    if (FCCOL > 1) {
+        message("Note, using the leftmost column with 'ratio' in the name")
+    }
+    if (FCCOL < 1) {
+        stop("Error, there is no column named 'ratio' in the input")
+    }
+
+    PCOL = grep("p.val",names(y))[1]
+
+    FCCOL = grep("ratio",names(y))[1]
+
+    s <- sign(y[,FCCOL]) * -log10(y[,PCOL])
+
+    if (!is.null(attributes(y)$geneIDcol)) {
+        g <- y[, attributes(y)$geneIDcol]
+    } else {
+        g <- rownames(y)
+    }
+    z <- data.frame(g, s, stringsAsFactors = FALSE)
+    colnames(z) <- c("geneidentifiers", "y")
+    z <- mapGeneIds(y, z)
+    z
+}
+
+
+msmstests_score <- function(y , geneIDcol = geneIDcol ) {
+
+    NCOL = ncol(y)
+    if (NCOL < 2) {
+        stop("Error: there are <2 columns in the input, 'p.value' and 'LogFC' are required ")
+    }
+
+    PCOL = length(which(names(y) == "p.value"))
+    if (PCOL > 1) {
+        stop("Error, there is more than 1 column named 'p.value' in the input")
+    }
+    if (PCOL < 1) {
+        stop("Error, there is no column named 'p.value' in the input")
+    }
+
+    FCCOL = length(which(names(y) == "LogFC"))
+    if (FCCOL > 1) {
+        stop("Error, there is more than 1 column named 'LogFC' in the input")
+    }
+    if (FCCOL < 1) {
+        stop("Error, there is no column named 'LogFC' in the input")
+    }
+
+    s <- sign(y$LogFC) * -log10(y$p.value)
+
+    if (!is.null(attributes(y)$geneIDcol)) {
+        g <- y[, attributes(y)$geneIDcol]
+    } else {
+        g <- rownames(y)
+    }
+    z <- data.frame(g, s, stringsAsFactors = FALSE)
+    colnames(z) <- c("geneidentifiers", "y")
+    z <- mapGeneIds(y, z)
+    z
+}
+
+
+plgem_score <- function(y , geneIDcol = geneIDcol ) {
+
+    LEN = length(y)
+    if (LEN < 2) {
+        stop("Error: there are <2 items in the input list, '$p.value' and '$PLGEM.STN' are required")
+    }
+
+    PCOL = length(which(names(y) == "p.value"))
+    if (PCOL > 1) {
+        stop("Error, there is more than 1 item in the list named 'p.value'")
+    }
+    if (PCOL < 1) {
+        stop("Error, there is no item in the list named 'p.value'")
+    }
+
+    FCCOL = length(which(names(y) == "PLGEM.STN"))
+    if (FCCOL > 1) {
+        stop("Error, there is more than 1 column named 'PLGEM.STN' in the input")
+    }
+    if (FCCOL < 1) {
+        stop("Error, there is no column named 'PLGEM.STN' in the input")
+    }
+
+    s <- sign(y$PLGEM.STN) * -log10(y$p.value)
+    g <- rownames(y$PLGEM.STN)
+    z <- data.frame(g, s, stringsAsFactors = FALSE)
+    colnames(z) <- c("geneidentifiers", "y")
+    z <- mapGeneIds(y, z)
+    z
+}
+
+
+sdams_score <- function(y , geneIDcol = geneIDcol ) {
+
+    LEN = length(y)
+    if (LEN < 2) {
+        stop("Error: there are <2 items in the input list, '$pv_2part' and '$beta' are required")
+    }
+
+    PCOL = length(which(names(y) == "pv_2part"))
+    if (PCOL > 1) {
+        stop("Error, there is more than 1 item in the list named 'pv_2part'")
+    }
+    if (PCOL < 1) {
+        stop("Error, there is no item in the list named 'pv_2part'")
+    }
+
+    FCCOL = length(which(names(y) == "beta"))
+    if (FCCOL > 1) {
+        stop("Error, there is more than 1 column named 'beta' in the input")
+    }
+    if (FCCOL < 1) {
+        stop("Error, there is no column named 'beta' in the input")
+    }
+
+    s <- sign(y$beta) * -log10(y$pv_2part)
+    g <- y$feat.names
+    z <- data.frame(g, s, stringsAsFactors = FALSE)
+    colnames(z) <- c("geneidentifiers", "y")
+    z <- mapGeneIds(y, z)
+    z
+}
+
+
+diffbind_score <- function(y , geneIDcol = geneIDcol ) {
+
+    NCOL = ncol(y)
+    if (NCOL < 2) {
+        stop("Error: there are <2 columns in the input, 'p.value' and 'Fold' are required ")
+    }
+
+    PCOL = length(which(names(y) == "p.value"))
+    if (PCOL > 1) {
+        stop("Error, there is more than 1 column named 'p.value' in the input")
+    }
+    if (PCOL < 1) {
+        stop("Error, there is no column named 'p.value' in the input")
+    }
+
+    FCCOL = length(which(names(y) == "Fold"))
+    if (FCCOL > 1) {
+        stop("Error, there is more than 1 column named 'Fold' in the input")
+    }
+    if (FCCOL < 1) {
+        stop("Error, there is no column named 'Fold' in the input")
+    }
+
+    y <- as.data.frame(y)
+    s <- sign(y$Fold) * -log10(y$p.value)
+
+    if (!is.null(attributes(y)$geneIDcol)) {
+        g <- y[, attributes(y)$geneIDcol]
+    } else {
+        g <- rownames(y)
+    }
+    z <- data.frame(g, s, stringsAsFactors = FALSE)
+    colnames(z) <- c("geneidentifiers", "y")
+    z <- mapGeneIds(y, z)
+    z
+}
+
+
 preranked_score <- function(y, joinType , geneIDcol = geneIDcol ) {
 
     if (!is.null(attributes(y)$geneIDcol)) {
@@ -681,9 +827,10 @@ preranked_score <- function(y, joinType , geneIDcol = geneIDcol ) {
 #' @param DEtype the program that generated the differential expression table
 #' Valid options are 'edgeR', 'DESeq2', 'limma', 'ABSSeq', 'Sleuth', 'Seurat',
 #' 'topConfects', 'muscat', 'Swish', 'scDE', 'MAST', 'DEsingle', 'ballgown',
-#' 'NOIseq', 'TCC', 'DEDS', 'cuffdiff' and 'preranked'. Where 'preranked' is 
-#' a dataframe containing the rank statistic and gene ID (either in rowname or
-#' separate column) and nothing else.
+#' 'NOIseq', 'TCC', 'DEDS', 'cuffdiff', 'fishpond', 'missMethyl', 'DMRcate',
+#' 'DEP', 'msmsTests', 'plgem', 'SDAMS', 'DEqMS', 'DiffBind' and 'preranked'. 
+#' Where 'preranked' is a dataframe containing the rank statistic and gene ID 
+#' (either in rowname or separate column) and nothing else.
 #' @param geneIDcol the column containing gene names. If gene names are 
 #' @param joinType the type of join to perform, either 'inner' or 'full'.
 #' By default, joins are 'inner' except for Seurat and muscat where full is used.
@@ -750,15 +897,16 @@ mitch_import <- function(x, DEtype, geneIDcol = NULL, geneTable = NULL, joinType
     DEtype = tolower(DEtype)
     
     validDEtype = c("edger", "deseq2", "limma", "absseq", "sleuth", "seurat",
-        "topconfects", "muscat", "swish", "scde", "mast", "desingle", 
-        "ballgown", "noiseq", "tcc", "deds", "cuffdiff", "preranked")
+        "topconfects", "muscat", "swish", "scde", "mast", "desingle",
+        "ballgown", "noiseq", "tcc", "deds", "cuffdiff", "preranked", 
+        "fishpond", "missmethyl", "dmrcate", "dep", "msmstests", "plgem",
+        "sdams", "deqms", "diffbind")
 
     if (DEtype == "edger") {
         xx <- lapply(x, edger_score)
-    } else if (DEtype == "deseq2") {
+    } else if (DEtype == "deseq2" || DEtype == "swish" || 
+    DEtype == "fishpond" ) {
         xx <- lapply(x, deseq2_score)
-    } else if (DEtype == "limma") {
-        xx <- lapply(x, limma_score)
     } else if (DEtype == "absseq") {
         xx <- lapply(x, absseq_score)
     } else if (DEtype == "sleuth") {
@@ -769,8 +917,6 @@ mitch_import <- function(x, DEtype, geneIDcol = NULL, geneTable = NULL, joinType
         xx <- lapply(x, topconfect_score)
     } else if (DEtype == "muscat") {
         xx <- lapply(x, muscat_score)
-    } else if (DEtype == "swish" || DEtype == "fishpond") {
-        xx <- lapply(x, swish_score)
     } else if (DEtype == "scde") {
         xx <- lapply(x, scde_score)
     } else if (DEtype == "mast" ) {
@@ -783,10 +929,23 @@ mitch_import <- function(x, DEtype, geneIDcol = NULL, geneTable = NULL, joinType
         xx <- lapply(x, noiseq_score)
     } else if (DEtype == "tcc" ) {
         xx <- lapply(x, tcc_score)
-    } else if (DEtype == "deds" ) {
+    } else if (DEtype == "deds" || DEtype == "missmethyl" || 
+    DEtype == "limma" || DEtype == "deqms" ) {
         xx <- lapply(x, deds_score)
     } else if (DEtype == "cuffdiff" ) {
         xx <- lapply(x, cuffdiff_score)
+    } else if (DEtype == "dmrcate" ) {
+        xx <- lapply(x, dmrcate_score)
+    } else if (DEtype == "dep" ) {
+        xx <- lapply(x, dep_score)
+    } else if (DEtype == "msmstests" ) {
+        xx <- lapply(x, msmstests_score)
+    } else if (DEtype == "plgem" ) {
+        xx <- lapply(x, plgem_score)
+    } else if (DEtype == "sdams" ) {
+        xx <- lapply(x, sdams_score)
+    } else if (DEtype == "diffbind" ) {
+        xx <- lapply(x, diffbind_score)
     } else if (DEtype == "preranked") {
         xx <- lapply(x, preranked_score, joinType = joinType)
     } else {
@@ -799,7 +958,8 @@ mitch_import <- function(x, DEtype, geneIDcol = NULL, geneTable = NULL, joinType
     }
     
     if (is.null(joinType)) {
-        if (DEtype == "seurat" || DEtype == "muscat") {
+        if (DEtype == "seurat" || DEtype == "muscat" || DEtype == "scde" ||
+        DEtype == "mast" || DEtype == "desingle" ) {
             xxx <- join_all(xx, by = "geneidentifiers", type = "full")
         } else {
             xxx <- join_all(xx, by = "geneidentifiers", type = "inner")
