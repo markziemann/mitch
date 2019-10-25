@@ -1,6 +1,6 @@
 Package: mitch
 Title: Multidimensional Gene Set Enrichment Analysis
-Version: 0.99.12
+Version: 0.99.13
 Authors@R: c(
     person(given = "Mark",
            family = "Ziemann",
