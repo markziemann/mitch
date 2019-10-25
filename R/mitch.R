@@ -107,30 +107,17 @@ edger_score <- function(y , geneIDcol = geneIDcol ) {
 
 
 deseq2_score <- function(y , geneIDcol = geneIDcol ) {
-    
-    NCOL = ncol(y)
-    if (NCOL < 2) {
-        stop("Error: there are <2 columns in the input, 'pvalue' and 'log2FoldChange' are required ")
+
+    ZCOL = length(which(names(y) == "stat"))
+    if (ZCOL > 1) {
+        stop("Error, there is more than 1 column named 'stat' in the input")
     }
-    
-    PCOL = length(which(names(y) == "pvalue"))
-    if (PCOL > 1) {
-        stop("Error, there is more than 1 column named 'pvalue' in the input")
+    if (ZCOL < 1) {
+        stop("Error, there is no column named 'stat' in the input")
     }
-    if (PCOL < 1) {
-        stop("Error, there is no column named 'pvalue' in the input")
-    }
-    
-    FCCOL = length(which(names(y) == "log2FoldChange"))
-    if (FCCOL > 1) {
-        stop("Error, there is more than 1 column named 'log2FoldChange' in the input")
-    }
-    if (FCCOL < 1) {
-        stop("Error, there is no column named 'log2FoldChange' in the input")
-    }
-    
-    s <- sign(y$log2FoldChange) * -log10(y$pvalue)
-    
+
+    s <- y$stat
+
     if (!is.null(attributes(y)$geneIDcol)) {
         g <- y[, attributes(y)$geneIDcol]
     } else {
@@ -141,6 +128,7 @@ deseq2_score <- function(y , geneIDcol = geneIDcol ) {
     z <- mapGeneIds(y, z)
     z
 }
+
 
 limma_score <- function(y , geneIDcol = geneIDcol ) {
     
