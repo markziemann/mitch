@@ -1,6 +1,6 @@
 Package: mitch
 Title: Multidimensional Gene Set Enrichment Analysis
-Version: 0.99.14
+Version: 0.99.15
 Authors@R: c(
     person(given = "Mark",
            family = "Ziemann",
@@ -10,17 +10,17 @@ Authors@R: c(
         family="Kaspi",
         role = c("aut","cph"))
     )
-Description: Mitch applies rank-MANOVA to identify differential gene set enrichments in single and multi-profiling data. 
+Description: mitch applies rank-MANOVA to identify differential gene set enrichments in single and multi-profiling data. 
   Multi-profiling data can be multi-omics such as combinations of proteomics, transcriptomics, epigenomics, but 
-  also high throughput profiling datasets of up to 15 contrasts. Mitch imports differential expression data from 
+  also high throughput profiling datasets of up to 15 contrasts. mitch imports differential expression data from 
   commonly used tools such as edgeR, limma, DESeq2, ABSSeq and Sleuth as well as scRNA-seq data output by Seurat. 
-  Mitch can output data in the form of a high resolution PDF or as a self contained HTML report. 
-Depends: R (>= 3.6.0)
-Suggests:
+  mitch can output data in the form of a high resolution PDF or as a self contained HTML report. 
+Depends: R (>= 4.0)
 Imports: pkgload, fs, remotes, processx, stats, tidyselect, grDevices, graphics, utils, MASS, plyr, reshape2, parallel, pbmcapply, GGally, grid, gridExtra, knitr, rmarkdown, ggplot2, gplots, beeswarm, echarts4r
 License: CC BY-SA 4.0 + file LICENSE
 Encoding: UTF-8
-LazyData: true
+URL: https://github.com/markziemann/mitch
+LazyData: false
 RoxygenNote: 6.1.1.9001
-biocViews: GeneExpression,GeneSetEnrichment,SingleCell,Transcriptomics,Epigenetics,Proteomics, DifferentialExpression
+biocViews: GeneExpression, GeneSetEnrichment, SingleCell, Transcriptomics, Epigenetics, Proteomics, DifferentialExpression, Reactome
 VignetteBuilder: knitr
