@@ -47,6 +47,7 @@ This function performs multivariate gene set enrichment analysis.
 \examples{
 # Example using mitch to calculate multivariate enrichments and
 # prioritise based on effect size 
+data(myImportedData,genesetsExample)
 resExample<-mitch_calc(myImportedData,genesetsExample,priority='effect',
 minsetsize=5,cores=2)
 }

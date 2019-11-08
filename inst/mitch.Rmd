@@ -19,6 +19,20 @@ Ziemann. Learn more about Mitch at the website: https://github.com/markziemann/M
 
 Here is the first few lines of the input profile.
 
+```{r,checklibraries,echo=FALSE}
+library("echarts4r")
+library("dplyr")
+library("tibble")
+library("gtools")
+library("gplots")
+library("beeswarm")
+library("reshape2")
+library("ggplot2")
+library("GGally")
+library("pkgload")
+```
+
+
 ```{r,peek,echo=FALSE}
 load(DATANAME)
 
@@ -99,8 +113,6 @@ if ( d==1 ) {
     plot(res$input_profile, pch=19, col=rgb(red = 0, green = 0, blue = 0, alpha = 0.15), main="Input profiles"  )
 
 } else {
-
-    library("GGally")
 
     ggpairs_points_plot <- function(data ,mapping, ...){
 
@@ -359,9 +371,6 @@ if ( nsig > 0 ) {
 
 if (d==1) {
 
-    library("dplyr")
-    library("gtools")
-
     numsets=nrow(subset(res$enrichment_result,p.adjustANOVA<0.05))
 
     p=NULL
@@ -375,8 +384,6 @@ if (d==1) {
         # volcano with echarts4r
         cat("Significance is calculated by -log10(p-value). All points shown are FDR<0.05.<br>")
 
-        library("echarts4r")
-
         myres2<-subset(res$enrichment_result,p.adjustANOVA<0.05)
         myres2$significance<--log10(myres2$pANOVA)
         myres2$set<-sub(",","",myres2$set)
@@ -389,7 +396,7 @@ if (d==1) {
 
             p2<-myres2 %>%
                 tibble::rownames_to_column("model") %>%
-                mutate(set = paste(set, setSize, p.adjustANOVA , sep = ",")) %>%
+                dplyr::mutate(set = paste(set, setSize, p.adjustANOVA , sep = ",")) %>%
                 e_charts(xx) %>%
                 e_legend(show = FALSE) %>%
                 e_x_axis(name = XCOL) %>%  # add x axis name
@@ -485,10 +492,6 @@ echartscatter<-function(i){
 }
 
 if (d!=1) {
-    library("dplyr")
-    library("gtools")
-    library("echarts4r")
-
     cat("All sets with FDR<0.05. Try hovering over the points.<br>")
 
     numsets=nrow(subset(res$enrichment_result,p.adjustMANOVA<0.05))
@@ -621,8 +624,6 @@ if (d!=1) {
     if (resrows>2) {
 
         cat("<h2> A heatmap of S values for top results</h2><br>")
-
-        library(gplots)
 
         hmapx<-head( res$enrichment_result[,4:(4+d-1)] ,resrows)
 
@@ -776,8 +777,6 @@ if (d==1) {
     cat('<br>')
 
     cat('\n')
-
-    library("beeswarm")
 
     ss<-res$ranked_profile
 
@@ -1097,12 +1096,6 @@ if (d!=1) {
 
     cat("<h2> Detailed Gene set reports</h2><br>")
 
-    library("reshape2")
-
-    library("ggplot2")
-
-    library("GGally")
-
     resrows=length(res$detailed_sets)
 
     ss<-res$ranked_profile
@@ -1197,7 +1190,6 @@ if (d!=1) {
 Here is the session info with all the versions of packages used.
 
 ```{r session_info, include=TRUE, echo=TRUE, results='markup'}
-library("pkgload")
 sessionInfo()
 ```
 

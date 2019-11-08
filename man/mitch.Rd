@@ -4,25 +4,25 @@
 \name{mitch}
 \alias{mitch}
 \alias{mitch-package}
-\title{Mitch: An R package for multi-dimensional pathway enrichment analysis}
+\title{mitch: An R package for multi-dimensional pathway enrichment analysis}
 \description{
-Mitch is an R package for multi-dimensional enrichment analysis. At it's 
+mitch is an R package for multi-dimensional enrichment analysis. At it's 
 heart, it uses a rank-MANOVA based statistical approach to detect sets of 
 genes that exhibit enrichment in the multidimensional space as compared to 
-the background. Mitch is useful for pathway analysis of profiling studies 
+the background. mitch is useful for pathway analysis of profiling studies 
 with two to or more contrasts, or in studies with multiple omics profiling, 
 for example proteomic, transcriptomic, epigenomic analysis of the same 
-samples. Mitch is perfectly suited for pathway level differential analysis of
+samples. mitch is perfectly suited for pathway level differential analysis of
  scRNA-seq data.
 }
 \details{
-A typical Mitch workflow consists of:
+A typical mitch workflow consists of:
 1) Import gene sets with gmt_import()
 2) Import profiling data with mitch_import()
 3) Calculate enrichments with mitch_calc()
 4) And generate plots and reports with mitch_plots() and mitch_report()
 
-More documentation on the github page https://github.com/markziemann/Mitch
+More documentation on the github page https://github.com/markziemann/mitch
 or with ?<function>, eg: ?mitch_import
 }
 \examples{
@@ -30,8 +30,9 @@ or with ?<function>, eg: ?mitch_import
 # Import some gene sets
 genesetsExample<-gmt_import(system.file('extdata/sample_genesets.gmt', 
 package = 'mitch'))
-# Say you have some edgeR tables (rna, k9a, k36a). The first step
-# is to create a list of differential profiles
+# Load some edgeR tables (rna, k9a, k36a). 
+data(rna,k9a,k36a)
+# Create a list of differential profiles
 myList<-list('rna'=rna,'k9a'=k9a,'k36a'=k36a)
 # Import as edgeR table 
 myImportedData<-mitch_import(myList,DEtype='edger',geneID='Name')
@@ -39,7 +40,7 @@ myImportedData<-mitch_import(myList,DEtype='edger',geneID='Name')
 resExample<-mitch_calc(myImportedData,genesetsExample,priority='effect',
 resrows=5,cores=2)
 # Generate some high res plots in PDF format
-mitch_plots(resExample,outfile='outres.pdf',cores=2)
+mitch_plots(resExample,outfile='outres.pdf')
 #' Generate a report of the analysis in HTML format
 mitch_report(resExample,'outres.html')
 }

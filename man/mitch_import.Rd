@@ -11,10 +11,12 @@ mitch_import(x, DEtype, geneIDcol = NULL, geneTable = NULL,
 \item{x}{a list of differential expression tables}
 
 \item{DEtype}{the program that generated the differential expression table
-Valid options are 'edgeR', 'DESeq2', 'limma', 'ABSSeq', 'Seurat', 'muscat',
-'swish' and 'preranked'. Where 'preranked' is a dataframe containing the 
-rank statistic and gene ID (either in rowname or separate column) and
-nothing else.}
+Valid options are 'edgeR', 'DESeq2', 'limma', 'ABSSeq', 'Sleuth', 'Seurat',
+'topConfects', 'muscat', 'Swish', 'scDE', 'MAST', 'DEsingle', 'ballgown',
+'NOIseq', 'TCC', 'DEDS', 'cuffdiff', 'fishpond', 'missMethyl', 'DMRcate',
+'DEP', 'msmsTests', 'plgem', 'SDAMS', 'DEqMS', 'DiffBind' and 'preranked'. 
+Where 'preranked' is a dataframe containing the rank statistic and gene ID 
+(either in rowname or separate column) and nothing else.}
 
 \item{geneIDcol}{the column containing gene names. If gene names are}
 
@@ -30,16 +32,17 @@ a multi-column table compatible with mitch_calc analysis.
 }
 \description{
 This function imports differential omics data from common differential tools 
-like edgeR, limma, DESeq2, Sleuth, ABSSeq and Seurat. It calculates a 
-summarised differential expression metric by multiplying the sign of the log
-fold change by the -log10 of the p-value. If this behaviour is not desired, 
-mitch_import can be bypassed in favour of another scoring metric.
+like edgeR, limma and DESeq2. It calculates a summarised differential
+expression metric by multiplying the sign of the log fold change by the 
+-log10 of the p-value. If this behaviour is not desired, mitch_import can be
+bypassed in favour of another scoring metric.
 }
 \examples{
 # first step is to create a list of differential profiles
+data(rna,k9a,k36a)
 x<-list('rna'=rna,'k9a'=k9a,'k36a'=k36a)
 # import as edgeR table 
-y<-mitch_import(x,DEtype='edger')
+imported<-mitch_import(x,DEtype='edger')
 }
 \keyword{import}
 \keyword{mitch}

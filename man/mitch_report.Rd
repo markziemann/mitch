@@ -25,6 +25,7 @@ function. The number of detailed sets to generate is dictated by the resrows
 set in the mitch_calc command.
 }
 \examples{
+data(resExample)
 mitch_report(resExample,'outres2.html')
 }
 \keyword{html}

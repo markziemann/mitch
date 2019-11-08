@@ -1,21 +1,21 @@
-#' Mitch: An R package for multi-dimensional pathway enrichment analysis
+#' mitch: An R package for multi-dimensional pathway enrichment analysis
 #'
-#' Mitch is an R package for multi-dimensional enrichment analysis. At it's 
+#' mitch is an R package for multi-dimensional enrichment analysis. At it's 
 #' heart, it uses a rank-MANOVA based statistical approach to detect sets of 
 #' genes that exhibit enrichment in the multidimensional space as compared to 
-#' the background. Mitch is useful for pathway analysis of profiling studies 
+#' the background. mitch is useful for pathway analysis of profiling studies 
 #' with two to or more contrasts, or in studies with multiple omics profiling, 
 #' for example proteomic, transcriptomic, epigenomic analysis of the same 
-#' samples. Mitch is perfectly suited for pathway level differential analysis of
+#' samples. mitch is perfectly suited for pathway level differential analysis of
 #'  scRNA-seq data.
 #'
-#' A typical Mitch workflow consists of:
+#' A typical mitch workflow consists of:
 #' 1) Import gene sets with gmt_import()
 #' 2) Import profiling data with mitch_import()
 #' 3) Calculate enrichments with mitch_calc()
 #' 4) And generate plots and reports with mitch_plots() and mitch_report()
 #' 
-#' More documentation on the github page https://github.com/markziemann/Mitch
+#' More documentation on the github page https://github.com/markziemann/mitch
 #' or with ?<function>, eg: ?mitch_import
 #'
 #' @docType package
@@ -25,8 +25,9 @@
 #' # Import some gene sets
 #' genesetsExample<-gmt_import(system.file('extdata/sample_genesets.gmt', 
 #' package = 'mitch'))
-#' # Say you have some edgeR tables (rna, k9a, k36a). The first step
-#' # is to create a list of differential profiles
+#' # Load some edgeR tables (rna, k9a, k36a). 
+#' data(rna,k9a,k36a)
+#' # Create a list of differential profiles
 #' myList<-list('rna'=rna,'k9a'=k9a,'k36a'=k36a)
 #' # Import as edgeR table 
 #' myImportedData<-mitch_import(myList,DEtype='edger',geneID='Name')
@@ -34,14 +35,14 @@
 #' resExample<-mitch_calc(myImportedData,genesetsExample,priority='effect',
 #' resrows=5,cores=2)
 #' # Generate some high res plots in PDF format
-#' mitch_plots(resExample,outfile='outres.pdf',cores=2)
+#' mitch_plots(resExample,outfile='outres.pdf')
 #' #' Generate a report of the analysis in HTML format
 #' mitch_report(resExample,'outres.html')
 NULL
 
 #' @import utils
 utils::globalVariables(c("p.adjustMANOVA", "effect", "p.adjustANOVA", "Var2", "value", 
-    "..density.."))
+    "..density..","dummy_x","dummy_y"))
 
 
 mapGeneIds <- function(y, z) {
@@ -842,9 +843,11 @@ preranked_score <- function(y, joinType , geneIDcol = geneIDcol ) {
 #' @export
 #' @examples
 #' # first step is to create a list of differential profiles
+#' data(rna,k9a,k36a)
 #' x<-list('rna'=rna,'k9a'=k9a,'k36a'=k36a)
 #' # import as edgeR table 
-#' y<-mitch_import(x,DEtype='edger')
+#' imported<-mitch_import(x,DEtype='edger')
+#' @importFrom plyr join_all
 mitch_import <- function(x, DEtype, geneIDcol = NULL, geneTable = NULL, joinType = NULL) {
     
     if (is.data.frame(x)) {
@@ -1346,13 +1349,14 @@ get_os <- function(){
 #' prioritised gene sets.
 #' @keywords mitch calc calculate manova 
 #' @import parallel
-#' @import pbmcapply
+#' @importFrom pbmcapply pbmclapply
 #' @import stats
-#' @import plyr
+#' @importFrom plyr ldply
 #' @export
 #' @examples
 #' # Example using mitch to calculate multivariate enrichments and
 #' # prioritise based on effect size 
+#' data(myImportedData,genesetsExample)
 #' resExample<-mitch_calc(myImportedData,genesetsExample,priority='effect',
 #' minsetsize=5,cores=2)
 mitch_calc <- function(x, genesets, minsetsize = 10, cores = detectCores() - 1, resrows = 50, 
@@ -1839,24 +1843,22 @@ plot3d_detailed_violin <- function(res, i) {
 #' @param outfile the destination file for the plots in PDF format. should
 #' contain 'pdf' suffix. Defaults to 
 #' 'Rplots.pdf'
-#' @param cores number of parallel cores for plotting 
 #' @return generates a PDF file containing enrichment plots.
 #' @keywords mitch plot plots pdf 
 #' @export
 #' @examples
-#' mitch_plots(resExample,outfile='outres.pdf',cores=2)
+#' data(resExample)
+#' mitch_plots(resExample,outfile='outres.pdf')
 #' @import grDevices
 #' @import graphics
-#' @import grDevices
 #' @import GGally
 #' @import grid
 #' @import gridExtra
-#' @import beeswarm
-#' @importFrom  gplots heatmap.2
-#' @import reshape2
+#' @importFrom beeswarm beeswarm
+#' @importFrom gplots heatmap.2
+#' @importFrom reshape2 melt
 #' @import ggplot2
-#' @import parallel
-mitch_plots <- function(res, outfile = "Rplots.pdf", cores = detectCores() - 1) {
+mitch_plots <- function(res, outfile = "Rplots.pdf") {
     
     resrows = length(res$detailed_sets)
     d = ncol(res$ranked_profile)
@@ -1926,21 +1928,17 @@ mitch_plots <- function(res, outfile = "Rplots.pdf", cores = detectCores() - 1) 
 #' @keywords mitch report html markdown knitr
 #' @export
 #' @examples
+#' data(resExample)
 #' mitch_report(resExample,'outres2.html')
 #' @import knitr
 #' @importFrom rmarkdown render
 #' @import echarts4r
-#' @import tidyselect
-#' @import processx
-#' @import remotes
-#' @import pkgload
-#' @import fs
 mitch_report <- function(res, outfile) {
 
-    df <- data.frame(x = seq(20), y = rnorm(20, 10, 3))
+    df <- data.frame(dummy_x = seq(20), dummy_y = rnorm(20, 10, 3))
     trash<-df %>% 
-      e_charts(x) %>% 
-      e_scatter(y, symbol_size = 10)
+      e_charts(dummy_x) %>% 
+      e_scatter(dummy_y, symbol_size = 10)
 
     HTMLNAME <- paste(outfile, ".html", sep = "")
     HTMLNAME <- gsub(".html.html", ".html", HTMLNAME)

@@ -4,7 +4,7 @@
 \alias{mitch_plots}
 \title{mitch_plots}
 \usage{
-mitch_plots(res, outfile = "Rplots.pdf", cores = detectCores() - 1)
+mitch_plots(res, outfile = "Rplots.pdf")
 }
 \arguments{
 \item{res}{a mitch results object.}
@@ -12,8 +12,6 @@ mitch_plots(res, outfile = "Rplots.pdf", cores = detectCores() - 1)
 \item{outfile}{the destination file for the plots in PDF format. should
 contain 'pdf' suffix. Defaults to 
 'Rplots.pdf'}
-
-\item{cores}{number of parallel cores for plotting}
 }
 \value{
 generates a PDF file containing enrichment plots.
@@ -25,7 +23,8 @@ The number of detailed sets to generate is dictated by the resrows set in the
 mitch_calc command.
 }
 \examples{
-mitch_plots(resExample,outfile='outres.pdf',cores=2)
+data(resExample)
+mitch_plots(resExample,outfile='outres.pdf')
 }
 \keyword{mitch}
 \keyword{pdf}
