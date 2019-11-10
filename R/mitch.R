@@ -863,6 +863,10 @@ mitch_import <- function(x, DEtype, geneIDcol = NULL, geneTable = NULL, joinType
     if (is.null(names(x))) {
         stop("Error: Input (x) must be a NAMED list of dataframes.")
     }
+
+    if ( length(x)>69 ) {
+        stop("Error: mitch is currently limited to 69 dimensions or fewer.")
+    }
     
     if (!is.null(geneTable) && !is.data.frame(geneTable)) {
         stop("Error: the geneTable needs to be a dataframe.")
@@ -1370,6 +1374,10 @@ mitch_calc <- function(x, genesets, minsetsize = 10, cores = detectCores() - 1, 
     ranked_profile <- mitch_rank(input_profile)
     if (get_os() == "windows") { cores=1 }
     
+    if ( ncol(x)>69 ) {
+        stop("Error: mitch is currently limited to 69 dimensions or fewer.")
+    }
+
     if (ncol(x) > 1) {
         enrichment_result <- MANOVA(ranked_profile, genesets, minsetsize = minsetsize, 
             cores = cores, priority = priority)
@@ -1866,6 +1874,10 @@ mitch_plots <- function(res, outfile = "Rplots.pdf") {
     d = ncol(res$ranked_profile)
     pdf(outfile)
     
+    if ( d>20 ) {
+        stop("Error: mitch plotting features are impractical for over 20 dimensions.")
+    }
+
     if (d == 1) {
         
         plot1d_profile_dist(res)
