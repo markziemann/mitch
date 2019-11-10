@@ -1115,6 +1115,8 @@ ANOVA <- function(x, genesets, minsetsize = 10, cores = detectCores() - 1, prior
     if (priority != "significance" && priority != "effect") {
         stop("Error: Parameter 'priority' must be either 'significance' (default) or 'effect'.")
     }
+
+    x<-x[which(!is.na(x)),,drop=FALSE]
     
     res <- pbmclapply(sets, function(set) {
         resample <- function(x, set) {
