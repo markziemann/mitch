@@ -829,9 +829,10 @@ preranked_score <- function(y, joinType , geneIDcol = geneIDcol ) {
 #' Valid options are 'edgeR', 'DESeq2', 'limma', 'ABSSeq', 'Sleuth', 'Seurat',
 #' 'topConfects', 'muscat', 'Swish', 'scDE', 'MAST', 'DEsingle', 'ballgown',
 #' 'NOIseq', 'TCC', 'DEDS', 'cuffdiff', 'fishpond', 'missMethyl', 'DMRcate',
-#' 'DEP', 'msmsTests', 'plgem', 'SDAMS', 'DEqMS', 'DiffBind' and 'preranked'. 
-#' Where 'preranked' is a dataframe containing the rank statistic and gene ID 
-#' (either in rowname or separate column) and nothing else.
+#' 'DEP', 'msmsTests', 'plgem', 'SDAMS', 'DEqMS', 'DiffBind' and 'prescored'. 
+#' Where 'prescored' is a dataframe containing the test statistic and gene ID 
+#' (either in rowname or separate column) and nothing else. 'preranked' is an 
+#' alias for 'prescored'.
 #' @param geneIDcol the column containing gene names. If gene names are 
 #' @param joinType the type of join to perform, either 'inner' or 'full'.
 #' By default, joins are 'inner' except for Seurat and muscat where full is used.
@@ -906,8 +907,8 @@ mitch_import <- function(x, DEtype, geneIDcol = NULL, geneTable = NULL, joinType
     validDEtype = c("edger", "deseq2", "limma", "absseq", "sleuth", "seurat",
         "topconfects", "muscat", "swish", "scde", "mast", "desingle",
         "ballgown", "noiseq", "tcc", "deds", "cuffdiff", "preranked", 
-        "fishpond", "missmethyl", "dmrcate", "dep", "msmstests", "plgem",
-        "sdams", "deqms", "diffbind")
+        "prescored","fishpond", "missmethyl", "dmrcate", "dep", "msmstests",
+        "plgem", "sdams", "deqms", "diffbind")
 
     if (DEtype == "edger") {
         xx <- lapply(x, edger_score)
@@ -953,7 +954,7 @@ mitch_import <- function(x, DEtype, geneIDcol = NULL, geneTable = NULL, joinType
         xx <- lapply(x, sdams_score)
     } else if (DEtype == "diffbind" ) {
         xx <- lapply(x, diffbind_score)
-    } else if (DEtype == "preranked") {
+    } else if (DEtype == "preranked" || DEtype == "prescored") {
         xx <- lapply(x, preranked_score, joinType = joinType)
     } else {
         stop(paste("Specified DEtype does not match one of the following:",validDEtype))
