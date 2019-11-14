@@ -10,7 +10,15 @@ data(resExample)
 }
 \description{
 Example of mitch results. Enrichment of the Reactome gene sets in the RNA,
-H3K9ac and H3K36ac datasets.
+H3K9ac and H3K36ac datasets. The structure of this data set is a list where
+the 1st element is "input_profile" that has been imported (data frame), 2nd
+element is the "input_genesets" (names list of gene names [character 
+vectors]), 3rd is "ranked_profile" which is the input profiling data after
+ranking (data frame), 4th is "enrichment_result" which is a data frame which
+provides enrichment information on each gene set in the profiling data
+including s scores, p-values and FDR adjusted p-values. 5th is 
+"analysis_metrics" (list). The 6th slot is "detailed_sets" which is a list
+of 5 matrices which details the enrichment of members of selected gene sets.
 }
 \examples{
 data(resExample)

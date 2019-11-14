@@ -13,7 +13,10 @@ data(genesetsExample)
 }
 \description{
 Genesets from Reactome database suitable for enrichment analysis.
-Acquired August 2019
+Acquired August 2019. The structure of this data is a named list of
+vectors, containing human gene names (character strings). This is 
+a sample of 200 gene sets from the approximately 2000 present in the
+full dataset.
 }
 \examples{
 data(genesetsExample)

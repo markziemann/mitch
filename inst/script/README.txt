@@ -1,6 +1,6 @@
-In this folder there are some "raw" data files which are used to demonstrate
-mitch functions in the examples. The instructions used to create these data 
-are in the inst/script/example_datagen.R script.
+In the inst/extdata/ folder there are some "raw" data files which are used to
+demonstrate mitch functions in the examples. The instructions used to create
+these data are in the inst/script/example_datagen.R script.
 
 These are the files:
 .

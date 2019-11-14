@@ -10,6 +10,11 @@ data(k9a)
 }
 \description{
 Example edgeR result of differential ChIP-seq H3K9ac.
+This is a dataframe which contains columns for log fold change, log counts
+per million, p-value and FDR adjusted p-value. These columns consist of 
+numerical values. The row names represent human gene names. This is a sample
+of 1000 gene of an original dataset that contains measurements of ~30000 
+genes.
 }
 \examples{
 data(k9a)

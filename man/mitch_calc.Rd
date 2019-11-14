@@ -4,17 +4,24 @@
 \alias{mitch_calc}
 \title{mitch_calc}
 \usage{
-mitch_calc(x, genesets, minsetsize = 10, cores = detectCores() - 1,
-  resrows = 50, priority = NULL)
+mitch_calc(
+  x,
+  genesets,
+  minsetsize = 10,
+  cores = detectCores() - 1,
+  resrows = 50,
+  priority = NULL
+)
 }
 \arguments{
 \item{x}{a multicolumn numerical table with each column containing 
 differential expression scores for a contrast.
 Rownames must match genesets.}
 
-\item{genesets}{lists of genes imported by the gmt_imprt function or similar.}
+\item{genesets}{lists of genes imported by the gmt_imprt function or
+similar.}
 
-\item{minsetsize}{the minimum number of genes required in a set for it to be 
+\item{minsetsize}{the minimum number of genes required in a set for it to be
 included in the statistical analysis.
 Default is 10.}
 

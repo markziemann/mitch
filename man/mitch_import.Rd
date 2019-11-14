@@ -4,8 +4,7 @@
 \alias{mitch_import}
 \title{mitch_import}
 \usage{
-mitch_import(x, DEtype, geneIDcol = NULL, geneTable = NULL,
-  joinType = NULL)
+mitch_import(x, DEtype, geneIDcol = NULL, geneTable = NULL, joinType = NULL)
 }
 \arguments{
 \item{x}{a list of differential expression tables}
@@ -14,9 +13,10 @@ mitch_import(x, DEtype, geneIDcol = NULL, geneTable = NULL,
 Valid options are 'edgeR', 'DESeq2', 'limma', 'ABSSeq', 'Sleuth', 'Seurat',
 'topConfects', 'muscat', 'Swish', 'scDE', 'MAST', 'DEsingle', 'ballgown',
 'NOIseq', 'TCC', 'DEDS', 'cuffdiff', 'fishpond', 'missMethyl', 'DMRcate',
-'DEP', 'msmsTests', 'plgem', 'SDAMS', 'DEqMS', 'DiffBind' and 'preranked'. 
-Where 'preranked' is a dataframe containing the rank statistic and gene ID 
-(either in rowname or separate column) and nothing else.}
+'DEP', 'msmsTests', 'plgem', 'SDAMS', 'DEqMS', 'DiffBind' and 'prescored'. 
+Where 'prescored' is a dataframe containing the test statistic and gene ID 
+(either in rowname or separate column) and nothing else. 'preranked' is an 
+alias for 'prescored'.}
 
 \item{geneIDcol}{the column containing gene names. If gene names are}
 
@@ -24,14 +24,14 @@ Where 'preranked' is a dataframe containing the rank statistic and gene ID
 gene identifiers in the gene sets.}
 
 \item{joinType}{the type of join to perform, either 'inner' or 'full'.
-By default, joins are 'inner' except for Seurat and muscat where full is used.
-specified as row names, then geneIDcol=NULL.}
+By default, joins are 'inner' except for Seurat and muscat where full is 
+used. specified as row names, then geneIDcol=NULL.}
 }
 \value{
 a multi-column table compatible with mitch_calc analysis.
 }
 \description{
-This function imports differential omics data from common differential tools 
+This function imports differential omics data from common differential tools
 like edgeR, limma and DESeq2. It calculates a summarised differential
 expression metric by multiplying the sign of the log fold change by the 
 -log10 of the p-value. If this behaviour is not desired, mitch_import can be

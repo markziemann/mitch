@@ -19,8 +19,8 @@ generates a PDF file containing enrichment plots.
 \description{
 This function generates several plots of multivariate gene set enrichment in
 high resolution PDF format.
-The number of detailed sets to generate is dictated by the resrows set in the
-mitch_calc command.
+The number of detailed sets to generate is dictated by the resrows set in
+the mitch_calc command.
 }
 \examples{
 data(resExample)

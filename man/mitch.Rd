@@ -3,7 +3,6 @@
 \docType{package}
 \name{mitch}
 \alias{mitch}
-\alias{mitch-package}
 \title{mitch: An R package for multi-dimensional pathway enrichment analysis}
 \description{
 mitch is an R package for multi-dimensional enrichment analysis. At it's 
@@ -12,8 +11,8 @@ genes that exhibit enrichment in the multidimensional space as compared to
 the background. mitch is useful for pathway analysis of profiling studies 
 with two to or more contrasts, or in studies with multiple omics profiling, 
 for example proteomic, transcriptomic, epigenomic analysis of the same 
-samples. mitch is perfectly suited for pathway level differential analysis of
- scRNA-seq data.
+samples. mitch is perfectly suited for pathway level differential analysis 
+of scRNA-seq data.
 }
 \details{
 A typical mitch workflow consists of:
@@ -35,7 +34,7 @@ data(rna,k9a,k36a)
 # Create a list of differential profiles
 myList<-list('rna'=rna,'k9a'=k9a,'k36a'=k36a)
 # Import as edgeR table 
-myImportedData<-mitch_import(myList,DEtype='edger',geneID='Name')
+myImportedData<-mitch_import(myList,DEtype='edger')
 # Calculate enrichment using MANOVA
 resExample<-mitch_calc(myImportedData,genesetsExample,priority='effect',
 resrows=5,cores=2)
