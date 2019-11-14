@@ -1987,7 +1987,10 @@ mitch_report <- function(res, outfile) {
 #' Reactome gene sets
 #'
 #' Genesets from Reactome database suitable for enrichment analysis.
-#' Acquired August 2019
+#' Acquired August 2019. The structure of this data is a named list of
+#' vectors, containing human gene names (character strings). This is 
+#' a sample of 200 gene sets from the approximately 2000 present in the
+#' full dataset.
 #' @docType data
 #' @usage data(genesetsExample)
 #' @format A list of gene sets
@@ -2002,6 +2005,11 @@ mitch_report <- function(res, outfile) {
 #' H3K36ac profile
 #' 
 #' Example edgeR result of differential ChIP-seq H3K36ac.
+#' This is a dataframe which contains columns for log fold change, log counts
+#' per million, p-value and FDR adjusted p-value. These columns consist of 
+#' numerical values. The row names represent human gene names. This is a sample
+#' of 1000 gene of an original dataset that contains measurements of ~30000 
+#' genes.
 #' @docType data
 #' @usage data(k36a)
 #' @format data frame
@@ -2013,6 +2021,11 @@ mitch_report <- function(res, outfile) {
 #' H3K9ac profile
 #' 
 #' Example edgeR result of differential ChIP-seq H3K9ac.
+#' This is a dataframe which contains columns for log fold change, log counts
+#' per million, p-value and FDR adjusted p-value. These columns consist of 
+#' numerical values. The row names represent human gene names. This is a sample
+#' of 1000 gene of an original dataset that contains measurements of ~30000 
+#' genes.
 #' @docType data
 #' @usage data(k9a)
 #' @format data frame     
@@ -2024,6 +2037,11 @@ mitch_report <- function(res, outfile) {
 #' RNA profile
 #' 
 #' Example edgeR result of differential RNA expression.
+#' This is a dataframe which contains columns for log fold change, log counts
+#' per million, p-value and FDR adjusted p-value. These columns consist of 
+#' numerical values. The row names represent human gene names. This is a sample
+#' of 1000 gene of an original dataset that contains measurements of ~15000 
+#' genes.
 #' @docType data
 #' @usage data(rna)
 #' @format data frame     
@@ -2035,7 +2053,9 @@ mitch_report <- function(res, outfile) {
 
 #' myList: A list of three edgeR results 
 #' 
-#' Example edgeR results of differential RNA, H3K9ac and H3K36ac                 
+#' Example edgeR results of differential RNA, H3K9ac and H3K36ac profiling.
+#' The structure of this data is a list of three dataframes. Each data frame
+#' is 1000 lines only.
 #' @docType data
 #' @usage data(myList)
 #' @format data frame     
@@ -2047,7 +2067,11 @@ mitch_report <- function(res, outfile) {
 
 #' myImportedData: Example imported profiles
 #' 
-#' Example of three edgeR profiles imported using mitch
+#' Example of three edgeR profiles imported using mitch.
+#' The structure of this data is a dataframe where each column represents
+#' one of the following profiling datasets after scoring: RNA, H3K9ac and
+#' H3K36ac. Each row represents one gene and this dataset contains just 1000
+#' rows to keep the example dataset small.
 #' @docType data
 #' @usage data(myImportedData)
 #' @format data frame     
@@ -2059,7 +2083,15 @@ mitch_report <- function(res, outfile) {
 #' resExample: Example mitch result
 #' 
 #' Example of mitch results. Enrichment of the Reactome gene sets in the RNA,
-#' H3K9ac and H3K36ac datasets.
+#' H3K9ac and H3K36ac datasets. The structure of this data set is a list where
+#' the 1st element is "input_profile" that has been imported (data frame), 2nd
+#' element is the "input_genesets" (names list of gene names [character 
+#' vectors]), 3rd is "ranked_profile" which is the input profiling data after
+#' ranking (data frame), 4th is "enrichment_result" which is a data frame which
+#' provides enrichment information on each gene set in the profiling data
+#' including s scores, p-values and FDR adjusted p-values. 5th is 
+#' "analysis_metrics" (list). The 6th slot is "detailed_sets" which is a list
+#' of 5 matrices which details the enrichment of members of selected gene sets.
 #' @docType data
 #' @usage data(resExample)
 #' @format list of mixed data types

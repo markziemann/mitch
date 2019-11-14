@@ -16,6 +16,7 @@ Description: mitch applies rank-MANOVA to identify differential gene set enrichm
   commonly used tools such as edgeR, limma, DESeq2, ABSSeq and Sleuth as well as scRNA-seq data output by Seurat. 
   mitch can output data in the form of a high resolution PDF or as a self contained HTML report. 
 Depends: R (>= 3.6.1)
+Suggests: stringi
 Imports: pkgload, fs, remotes, processx, stats, tidyselect, grDevices, graphics, utils, MASS, plyr, reshape2, parallel, pbmcapply, GGally, grid, gridExtra, knitr, rmarkdown, ggplot2, gplots, beeswarm, echarts4r
 License: CC BY-SA 4.0 + file LICENSE
 Encoding: UTF-8
