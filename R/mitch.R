@@ -14,7 +14,7 @@
 #' 2) Import profiling data with mitch_import()
 #' 3) Calculate enrichments with mitch_calc()
 #' 4) And generate plots and reports with mitch_plots() and mitch_report()
-#' 
+#'
 #' More documentation on the github page https://github.com/markziemann/mitch
 #' or with ?<function>, eg: ?mitch_import
 #'
@@ -1231,8 +1231,10 @@ mitch_metrics_calc<-function(x, genesets, enrichment_result, minsetsize = 10) {
         }))))
         rownames(geneset_counts) <- names(genesets)
         colnames(geneset_counts) = "count"
-        genesets_excluded=names(genesets)[which(geneset_counts$count<minsetsize)]
-        genesets_included=names(genesets)[which(geneset_counts$count>=minsetsize)]
+        genesets_excluded=
+            names(genesets)[which(geneset_counts$count<minsetsize)]
+        genesets_included=
+            names(genesets)[which(geneset_counts$count>=minsetsize)]
         num_genesets_excluded = length(genesets_excluded)
         num_genesets_included = length(genesets_included)
         num_genes_in_genesets = length(unique(as.vector(unlist(genesets))))
@@ -1296,8 +1298,10 @@ mitch_metrics_calc1d <- function(x, genesets, anova_result, minsetsize = 10) {
         }))))
         rownames(geneset_counts) <- names(genesets)
         colnames(geneset_counts) = "count"
-        genesets_excluded=names(genesets)[which(geneset_counts$count<minsetsize)]
-        genesets_included=names(genesets)[which(geneset_counts$count >= minsetsize)]
+        genesets_excluded=
+            names(genesets)[which(geneset_counts$count<minsetsize)]
+        genesets_included=
+            names(genesets)[which(geneset_counts$count >= minsetsize)]
         num_genesets_excluded = length(genesets_excluded)
         num_genesets_included = length(genesets_included)
         num_genes_in_genesets = length(unique(as.vector(unlist(genesets))))
@@ -1530,7 +1534,8 @@ plot1d_volcano <- function(res) {
     sig <- subset(res$enrichment_result, p.adjustANOVA <= 0.05)
     plot(res$enrichment_result$s.dist, -log10(res$enrichment_result$pANOVA),
     xlab = "s score", 
-        ylab = "-log10(p-value)", main = "volcano plot of gene set enrichments", 
+        ylab = "-log10(p-value)",
+        main = "volcano plot of gene set enrichments",
         pch = 19, cex = 0.8)
     points(sig$s.dist, -log10(sig$pANOVA), pch = 19, cex = 0.85, col = "red")
     TOTAL = nrow(res$enrichment_result)
@@ -2008,6 +2013,7 @@ plot3d_detailed_violin <- function(res, i) {
 #' @importFrom gplots heatmap.2
 #' @importFrom reshape2 melt
 #' @import ggplot2
+#' @importFrom MASS kde2d
 mitch_plots <- function(res, outfile = "Rplots.pdf") {
     
     resrows = length(res$detailed_sets)
