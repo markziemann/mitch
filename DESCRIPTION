@@ -1,6 +1,6 @@
 Package: mitch
 Title: Multidimensional Gene Set Enrichment Analysis
-Version: 0.99.18
+Version: 0.99.19
 Authors@R: c(
     person(given = "Mark",
         family = "Ziemann",
@@ -15,7 +15,7 @@ Description: mitch applies rank-MANOVA to identify differential gene set enrichm
     also high throughput profiling datasets of up to 15 contrasts. mitch imports differential expression data from 
     commonly used tools such as edgeR, limma, DESeq2, ABSSeq and Sleuth as well as scRNA-seq data output by Seurat. 
     mitch can output data in the form of a high resolution PDF or as a self contained HTML report. 
-Depends: R (>= 4.0)
+Depends: R (>= 3.6)
 Suggests: 
     stringi,
     testthat (>= 2.1.0)
