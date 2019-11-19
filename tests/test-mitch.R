@@ -35,7 +35,7 @@ mitch_report(res,"2d.html")
 test_that("2d works", {
     expect_equal(  length(which(res$enrichment_result$p.adjustMANOVA<0.1)) ,1)
     expect_true(file.info("2d.pdf")$size>100000)
-    expect_true(file.info("2d.html")$size>6000000)
+    expect_true(file.info("2d.html")$size>1000000)
 })
 
 unlink("2d.html")
@@ -53,7 +53,7 @@ mitch_report(res,"3d.html")
 test_that("3d works", {
     expect_equal(  length(which(res$enrichment_result$p.adjustMANOVA<0.1)) ,1)
     expect_true(file.info("3d.pdf")$size>100000)
-    expect_true(file.info("3d.html")$size>6000000)
+    expect_true(file.info("3d.html")$size>1000000)
 })
 
 unlink("3d.html")
