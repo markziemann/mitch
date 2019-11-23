@@ -23,8 +23,10 @@ myList <- list(rna = rna, k9a = k9a, k36a = k36a)
 REACTOMEURL=paste(DATAURL,"ReactomePathways.gmt",sep="")
 download.file(REACTOMEURL,destfile="ReactomePathways.gmt")
 genesetsExample <- head(gmt_import(REACTOMEURL), 200)
-system("head -200 ReactomePathways.gmt>../../inst/extdata/sample_genesets.gmt")
-
+reactome<-readLines("ReactomePathways.gmt")
+reactome<-head(reactome,200)
+writeLines(reactome,"../../inst/extdata/sample_genesets.gmt")
+	
 resExample<-mitch_calc(myImportedData,genesetsExample,
 resrows=5,priority="significance")
 
