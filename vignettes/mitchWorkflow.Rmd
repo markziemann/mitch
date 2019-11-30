@@ -26,8 +26,8 @@ analysis of scRNA-seq data.
 
 The main strengths of mitch are that it can import datasets easily
 from many upstream tools and has advanced plotting features to 
-visualise these enrichment. mitch consists of five functions. A
-typical mitch workflow would consists of: 
+visualise these enrichments. mitch consists of five functions. A
+typical mitch workflow would consist of: 
 
 * 1: Import gene sets with `gmt_import()`
 

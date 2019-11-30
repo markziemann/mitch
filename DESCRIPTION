@@ -10,11 +10,20 @@ Authors@R: c(
         family="Kaspi",
         role = c("aut","cph"))
     )
-Description: mitch applies rank-MANOVA to identify differential gene set enrichments in single and multi-profiling data. 
-    Multi-profiling data can be multi-omics such as combinations of proteomics, transcriptomics, epigenomics, but 
-    also high throughput profiling datasets of up to 15 contrasts. mitch imports differential expression data from 
-    commonly used tools such as edgeR, limma, DESeq2, ABSSeq and Sleuth as well as scRNA-seq data output by Seurat. 
-    mitch can output data in the form of a high resolution PDF or as a self contained HTML report. 
+Description: mitch is an R package for multi-dimensional enrichment analysis. At it’s heart,
+    it uses a rank-MANOVA based statistical approach to detect sets of genes
+    that exhibit enrichment in the multidimensional space as compared to the
+    background. The rank-MANOVA concept dates to work by Cox and Mann 
+    (https://doi.org/10.1186/1471-2105-13-S16-S12). mitch is useful for 
+    pathway analysis of profiling studies with one, two to or more contrasts,
+    or in studies with multiple omics profiling, for example proteomic,
+    transcriptomic, epigenomic analysis of the same samples. mitch is perfectly
+    suited for pathway level differential analysis of scRNA-seq data.
+
+    The main strengths of mitch are that it can import datasets easily from
+    many upstream tools and has advanced plotting features to visualise these
+    enrichments. 
+
 Depends: R (>= 4.0)
 Suggests: 
     stringi,
