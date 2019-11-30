@@ -72,11 +72,11 @@ Can be done like this:
 ```
 mitch_report(res,"myreport.html")
 ```
-Take a look at an [example report](https://github.com/markziemann/mitch/blob/master/figs/myreport.html).
+Take a look at an [example report](https://github.com/markziemann/mitch_paper/blob/master/figs/myreport.html).
 
 ### Generate high resolution plots
 In case you want the charts in PDF format, these can be generated as such:
 ```
 mitch_plots(res,outfile="mycharts.pdf")
 ```
-Take a look at an [example plot set](https://github.com/markziemann/mitch/blob/master/figs/mycharts.pdf).
+Take a look at an [example plot set](https://github.com/markziemann/mitch_paper/blob/master/figs/mycharts.pdf).
