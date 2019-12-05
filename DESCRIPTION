@@ -1,6 +1,6 @@
 Package: mitch
 Title: Multidimensional Gene Set Enrichment Analysis
-Version: 0.99.24
+Version: 0.99.25
 Authors@R: c(
     person(given = "Mark",
         family = "Ziemann",
@@ -19,11 +19,9 @@ Description: mitch is an R package for multi-dimensional enrichment analysis. At
     or in studies with multiple omics profiling, for example proteomic,
     transcriptomic, epigenomic analysis of the same samples. mitch is perfectly
     suited for pathway level differential analysis of scRNA-seq data.
-
     The main strengths of mitch are that it can import datasets easily from
     many upstream tools and has advanced plotting features to visualise these
     enrichments. 
-
 Depends: R (>= 4.0)
 Suggests: 
     stringi,
@@ -33,6 +31,6 @@ License: CC BY-SA 4.0 + file LICENSE
 Encoding: UTF-8
 URL: https://github.com/markziemann/mitch
 LazyData: false
-RoxygenNote: 7.0.0
+RoxygenNote: 7.0.2
 biocViews: GeneExpression, GeneSetEnrichment, SingleCell, Transcriptomics, Epigenetics, Proteomics, DifferentialExpression, Reactome
 VignetteBuilder: knitr
