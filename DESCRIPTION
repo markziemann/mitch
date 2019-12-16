@@ -1,5 +1,5 @@
 Package: mitch
-Title: Multidimensional Gene Set Enrichment Analysis
+Title: Multi-Contrast Gene Set Enrichment Analysis
 Version: 0.99.25
 Authors@R: c(
     person(given = "Mark",
@@ -10,12 +10,12 @@ Authors@R: c(
         family="Kaspi",
         role = c("aut","cph"))
     )
-Description: mitch is an R package for multi-dimensional enrichment analysis. At it’s heart,
-    it uses a rank-MANOVA based statistical approach to detect sets of genes
-    that exhibit enrichment in the multidimensional space as compared to the
-    background. The rank-MANOVA concept dates to work by Cox and Mann 
+Description: mitch is an R package for multi-contrast enrichment analysis. At
+    it’s heart, it uses a rank-MANOVA based statistical approach to detect sets
+    of genes that exhibit enrichment in the multidimensional space as compared
+    to the background. The rank-MANOVA concept dates to work by Cox and Mann 
     (https://doi.org/10.1186/1471-2105-13-S16-S12). mitch is useful for 
-    pathway analysis of profiling studies with one, two to or more contrasts,
+    pathway analysis of profiling studies with one, two or more contrasts,
     or in studies with multiple omics profiling, for example proteomic,
     transcriptomic, epigenomic analysis of the same samples. mitch is perfectly
     suited for pathway level differential analysis of scRNA-seq data.
