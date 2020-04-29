@@ -5,9 +5,10 @@ mitch is an R package for multi-dimensional enrichment analysis. At it's heart, 
 
 ## Installation
 ```
-install.packages("devtools")
-library("devtools")
-devtools::install_github("markziemann/mitch")
+if(!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install("mitch")
+
 library("mitch")
 ```
 
