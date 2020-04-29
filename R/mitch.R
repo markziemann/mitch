@@ -59,19 +59,21 @@ mapGeneIds <- function(y, z) {
         if (col1 > col2) {
             colnames(gt) = c("geneidentifiers", "GeneSymbol")
             z <- merge(gt, z, by = "geneidentifiers")
+            z$geneidentifiers = NULL
         } else {
             colnames(gt) = c("GeneSymbol", "geneidentifiers")
             z <- merge(gt, z, by = "geneidentifiers")
+            z$geneidentifiers = NULL
         }
         z <- aggregate(. ~ GeneSymbol, z, function(x) {
             sum(as.numeric(as.character(x)))
         })
 
-        z$geneidentifiers = NULL
         colnames(z) = c("geneidentifiers", "y")
     }
     z
 }
+
 
 edger_score <- function(y , geneIDcol = geneIDcol ) {
     
