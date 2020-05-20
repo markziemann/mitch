@@ -20,16 +20,18 @@ Ziemann. Learn more about Mitch at the website: https://github.com/markziemann/M
 Here is the first few lines of the input profile.
 
 ```{r,checklibraries,echo=FALSE}
-library("echarts4r")
-library("dplyr")
-library("tibble")
-library("gtools")
-library("gplots")
-library("beeswarm")
-library("reshape2")
-library("ggplot2")
-library("GGally")
-library("pkgload")
+suppressPackageStartupMessages({
+    library("echarts4r")
+    library("dplyr")
+    library("tibble")
+    library("gtools")
+    library("gplots")
+    library("beeswarm")
+    library("reshape2")
+    library("ggplot2")
+    library("GGally")
+    library("pkgload")
+})
 ```
 
 
@@ -397,11 +399,11 @@ if (d==1) {
             p2<-myres2 %>%
                 tibble::rownames_to_column("model") %>%
                 dplyr::mutate(set = paste(set, setSize, p.adjustANOVA , sep = ",")) %>%
-                e_charts(xx) %>%
+                e_charts(x = xx) %>%
                 e_legend(show = FALSE) %>%
                 e_x_axis(name = XCOL) %>%  # add x axis name
                 e_y_axis(name = YCOL) %>%  # add y axis name
-                e_scatter( xx , yy , bind = set , symbolSize = 10  ) %>%
+                e_scatter( serie = yy , bind = set , symbolSize = 10  ) %>%
                 e_tooltip(formatter = htmlwidgets::JS("
                     function(params){
                     var vals = params.name.split(',')
@@ -436,11 +438,11 @@ if (d==1) {
             p2<-myres2 %>%
                 tibble::rownames_to_column("model") %>%
                 mutate(set = paste(set, setSize, p.adjustANOVA , sep = ",")) %>%
-                e_charts(xx) %>%
+                e_charts(x = xx) %>%
                 e_legend(show = FALSE) %>%
                 e_x_axis(name = XCOL) %>%  # add x axis name
                 e_y_axis(name = YCOL) %>%  # add y axis name
-                e_scatter( xx , yy , bind = set , symbolSize = 10  ) %>%
+                e_scatter( serie = yy , bind = set , symbolSize = 10  ) %>%
                 e_tooltip(formatter = htmlwidgets::JS("
                     function(params){
                     var vals = params.name.split(',')
@@ -470,14 +472,14 @@ echartscatter<-function(i){
     colnames(myres)[3+my_x]<-"xx"
     colnames(myres)[3+my_y]<-"yy"
 
-    p2<-myres %>%
+    p2 <- myres %>%
         tibble::rownames_to_column("model") %>%
         mutate(set = paste(set, setSize, p.adjustMANOVA , s.dist , sep = ",")) %>%
-        e_charts(xx , height = 300 ) %>%
+        e_charts(x = xx , height = 300 ) %>%
         e_legend(show = FALSE) %>%
         e_x_axis(name = XCOL) %>%  # add x axis name
         e_y_axis(name = YCOL) %>%  # add y axis name
-        e_scatter( xx , yy , bind = set , symbolSize = 10  ) %>%
+        e_scatter( serie = yy , bind = set , symbolSize = 10  ) %>%
         e_tooltip(formatter = htmlwidgets::JS("
             function(params){
             var vals = params.name.split(',')
@@ -518,14 +520,14 @@ if (d!=1) {
             colnames(myres2)[4]<-"xx"
             colnames(myres2)[5]<-"yy"
 
-            p2<-myres2 %>%  
+            p2 <- myres2 %>%  
                 tibble::rownames_to_column("model") %>% 
                 mutate(set = paste(set, setSize, p.adjustMANOVA , s.dist , sep = ",")) %>%
-                e_charts(xx) %>% 
+                e_charts(x = xx) %>% 
                 e_legend(show = FALSE) %>%
                 e_x_axis(name = XCOL) %>%  # add x axis name
                 e_y_axis(name = YCOL) %>%  # add y axis name
-                e_scatter( xx , yy , bind = set , symbolSize = 10  ) %>%
+                e_scatter( serie = yy , bind = set , symbolSize = 10  ) %>%
                 e_tooltip(formatter = htmlwidgets::JS("
                     function(params){
                     var vals = params.name.split(',')
@@ -539,7 +541,8 @@ if (d!=1) {
 
         } else {
             plan<-combinations(n = d, r = 2, v = seq_len(d), repeats.allowed = FALSE)
-            myres<-myres[,c(1, which(names(myres) %in% "p.adjustMANOVA") ,2,4:(4+d-1), which(names(myres) %in% "s.dist") ), which(names(myres) %in% "SD")]
+            myres<-myres[,c(1, which(names(myres) %in% "p.adjustMANOVA") ,2,4:(4+d-1),
+                which(names(myres) %in% "s.dist") ), which(names(myres) %in% "SD")]
             p2<-list()
             p2<-lapply( seq_len(nrow(plan)) , echartscatter)
 
@@ -569,7 +572,8 @@ if (d!=1) {
 
         if ( d<3 ) {
 
-            myres2<-myres[,c(1,which(names(myres) %in% "p.adjustMANOVA"),2, 4:(4+d-1) , which(names(myres) %in% "s.dist") )]
+            myres2<-myres[,c(1,which(names(myres) %in% "p.adjustMANOVA"),2, 4:(4+d-1) , 
+                which(names(myres) %in% "s.dist") )]
             myres2$set<-sub(",","",myres2$set)
 
             XCOL=colnames(myres2)[4]
@@ -581,11 +585,11 @@ if (d!=1) {
             p2<-myres2 %>%
                 tibble::rownames_to_column("model") %>%
                 mutate(set = paste(set, setSize, p.adjustMANOVA , s.dist , sep = ",")) %>%
-                e_charts(xx) %>%
+                e_charts(x = xx) %>%
                 e_legend(show = FALSE) %>%
                 e_x_axis(name = XCOL) %>%  # add x axis name
                 e_y_axis(name = YCOL) %>%  # add y axis name
-                e_scatter( xx , yy , bind = set , symbolSize = 10  ) %>%
+                e_scatter( serie = yy , bind = set , symbolSize = 10  ) %>%
                 e_tooltip(formatter = htmlwidgets::JS("
                     function(params){
                     var vals = params.name.split(',')
@@ -601,11 +605,13 @@ if (d!=1) {
 
             plan<-combinations(n = d, r = 2, v = seq_len(d), repeats.allowed = FALSE)
 
-            myres<-myres[,c(1, which(names(myres) %in% "p.adjustMANOVA") ,2,4:(4+d-1), which(names(myres) %in% "s.dist") ), which(names(myres) %in% "SD")]
+            myres<-myres[,c(1, which(names(myres) %in% "p.adjustMANOVA") ,2,4:(4+d-1), 
+                which(names(myres) %in% "s.dist") ), which(names(myres) %in% "SD")]
 
             p<-list()
 
-            p<-lapply( seq_len(nrow(plan)) , echartscatter)
+            #p <- lapply( seq_len(nrow(plan)) , echartscatter)
+            lapply( seq_len(nrow(plan)) , echartscatter)
 
         }
 
@@ -613,7 +619,6 @@ if (d!=1) {
 
     htmltools::tagList(p)
     htmltools::tagList(p2)
-
 }
 
 ```
@@ -683,11 +688,11 @@ if (d!=1) {
     p2<-myres %>%
         tibble::rownames_to_column("model") %>%
         mutate(set = paste( set , setSize , p.adjustMANOVA , sep = ",")) %>%
-        e_charts(xx) %>%
+        e_charts( x = xx) %>%
         e_legend(show = FALSE) %>%
         e_x_axis(name = XCOL) %>%  # add x axis name
         e_y_axis(name = YCOL) %>%  # add y axis name
-        e_scatter( xx , yy , bind = set , symbolSize = 10  ) %>%
+        e_scatter( serie = yy , bind = set , symbolSize = 10  ) %>%
         e_tooltip(formatter = htmlwidgets::JS("
             function(params){
             var vals = params.name.split(',')

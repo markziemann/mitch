@@ -1,3 +1,8 @@
+CHANGES IN VERSION 1.1.2
+------------------------
+   o A fix to issues with the interactive charts in the Rmd output
+
+
 CHANGES IN VERSION 0.99.15
 ------------------------
    o Making changes in response to bioconductor review
