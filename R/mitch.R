@@ -2103,9 +2103,10 @@ mitch_report <- function(res, outfile) {
         e_charts(dummy_x) %>% 
         e_scatter(dummy_y, symbol_size = 10)
 
-    HTMLNAME <- paste(outfile, ".html", sep = "")
+    DIRNAME <- dirname(outfile)
+    HTMLNAME <- paste( basename(outfile), ".html", sep = "")
     HTMLNAME <- gsub(".html.html", ".html", HTMLNAME)
-    HTMLNAME <- paste(getwd(), HTMLNAME, sep = "/")
+    HTMLNAME <- paste(DIRNAME, HTMLNAME, sep = "/")
     
     if (file.exists(HTMLNAME)) {
         stop("Error: the output HTML file aready exists.")
@@ -2115,7 +2116,7 @@ mitch_report <- function(res, outfile) {
     rmd_tmpfile <- paste(rmd_tmpdir, "/mitch.Rmd", sep = "")
     html_tmp <- paste(paste(rmd_tmpdir, "/mitch_report.html", sep = ""))
     
-    DATANAME <- gsub(".html$", ".RData", outfile)
+    DATANAME <- gsub(".html$", ".RData", HTMLNAME)
     DATANAME <- paste(rmd_tmpdir, "/", DATANAME, sep = "")
     save.image(DATANAME)
     MYMESSAGE = paste("Dataset saved as \"", DATANAME, "\".")
