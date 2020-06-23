@@ -16,7 +16,7 @@ mitch_report(res,"1d.html")
 test_that("1d works", {
     expect_equal(  length(which(res$enrichment_result$p.adjustANOVA<0.1)) ,1)
     expect_true(file.info("1d.pdf")$size>10000)
-    expect_true(file.info("1d.html")$size>4000000)
+    expect_true(file.info("1d.html")$size>1000000)
 })
 
 unlink("1d.html")
