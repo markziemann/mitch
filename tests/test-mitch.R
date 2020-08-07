@@ -23,6 +23,19 @@ unlink("1d.html")
 unlink("1d.pdf")
 
 
+# 1d part 2 to make sure that saving files at a different location works
+MYPATH=paste(getwd(),"/1d.html",sep="")
+if (file.exists("1d.html")) { unlink("1d.html") }
+mitch_report(res,MYPATH)
+
+test_that("1d works", {
+    expect_true(file.info("1d.html")$size>1000000)
+})
+
+unlink("1d.html")
+
+
+
 # 2d
 data(rna,k9a,genesetsExample)
 x<-list("rna"=rna,"k9a"=k9a)

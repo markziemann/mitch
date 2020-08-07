@@ -4,7 +4,7 @@
 \alias{mitch_report}
 \title{mitch_report}
 \usage{
-mitch_report(res, outfile)
+mitch_report(res, outfile, overwrite = FALSE)
 }
 \arguments{
 \item{res}{a mitch results object.}
@@ -12,6 +12,8 @@ mitch_report(res, outfile)
 \item{outfile}{the destination file for the html report. should contain
 'html' suffix. Defaults to 
 'Rplots.pdf'}
+
+\item{overwrite}{should overwrite the report file if it already exists?}
 }
 \value{
 generates a HTML file containing enrichment plots.

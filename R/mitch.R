@@ -2087,6 +2087,7 @@ mitch_plots <- function(res, outfile = "Rplots.pdf") {
 #' @param outfile the destination file for the html report. should contain
 #' 'html' suffix. Defaults to 
 #' 'Rplots.pdf'
+#' @param overwrite should overwrite the report file if it already exists?
 #' @return generates a HTML file containing enrichment plots.
 #' @keywords mitch report html markdown knitr
 #' @export
@@ -2096,20 +2097,27 @@ mitch_plots <- function(res, outfile = "Rplots.pdf") {
 #' @import knitr
 #' @importFrom rmarkdown render
 #' @import echarts4r
-mitch_report <- function(res, outfile) {
+mitch_report <- function(res, outfile , overwrite=FALSE) {
 
     df <- data.frame(dummy_x = seq(20), dummy_y = rnorm(20, 10, 3))
     trash<-df %>% 
         e_charts(dummy_x) %>% 
         e_scatter(dummy_y, symbol_size = 10)
 
-    DIRNAME <- dirname(outfile)
+    DIRNAME <- normalizePath(dirname(outfile))
     HTMLNAME <- paste( basename(outfile), ".html", sep = "")
-    HTMLNAME <- gsub(".html.html", ".html", HTMLNAME)
-    HTMLNAME <- paste(DIRNAME, HTMLNAME, sep = "/")
+    HTMLNAME <- gsub(".html.html$", ".html", HTMLNAME)
     
     if (file.exists(HTMLNAME)) {
-        stop("Error: the output HTML file aready exists.")
+        if (overwrite==FALSE) {
+            stop("Error: the output HTML file aready exists.")
+        } else {
+            message("Note: overwriting existing report")
+        }
+    }
+
+    if (!file.exists(DIRNAME)) {
+        stop("Error: the output folder does not exist.")
     }
     
     rmd_tmpdir <- tempdir()
@@ -2128,7 +2136,7 @@ mitch_report <- function(res, outfile) {
     
     rmd = system.file("mitch.Rmd", package = "mitch")
     rmarkdown::render(rmd, intermediates_dir = "." , output_file = html_tmp)
-    file.copy(html_tmp, HTMLNAME)
+    file.copy(html_tmp, outfile, overwrite=overwrite)
 }
 
 
