@@ -1,6 +1,6 @@
 Package: mitch
 Title: Multi-Contrast Gene Set Enrichment Analysis
-Version: 1.1.6
+Version: 1.1.8
 Authors@R: c(
     person(given = "Mark",
         family = "Ziemann",
@@ -31,6 +31,6 @@ License: CC BY-SA 4.0 + file LICENSE
 Encoding: UTF-8
 URL: https://github.com/markziemann/mitch
 LazyData: false
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 biocViews: GeneExpression, GeneSetEnrichment, SingleCell, Transcriptomics, Epigenetics, Proteomics, DifferentialExpression, Reactome
 VignetteBuilder: knitr
