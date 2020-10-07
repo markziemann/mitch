@@ -959,30 +959,38 @@ ndplot<-function(i) {
 
     }
 
-    p<-ggpairs(as.data.frame(sss), title=ll[,1], lower=list(continuous=ggpairs_contour_limit_range),
-    diag=list(continuous=wrap("barDiag", binwidth=nrow(ss)/10)) )
+    empty_cnt <- length(which(is.na(cor(sss,use="pairwise.complete.obs"))))
+    if ( empty_cnt == 0 ) {
 
-    print( p + theme_bw() )
+        p<-ggpairs(as.data.frame(sss), title=ll[,1], lower=list(continuous=ggpairs_contour_limit_range),
+        diag=list(continuous=wrap("barDiag", binwidth=nrow(ss)/10)) )
 
-    p<-ggpairs(as.data.frame(sss), title=ll[,1], lower= list(continuous = ggpairs_points_limit_range ),
-    diag=list(continuous=wrap("barDiag", binwidth=nrow(ss)/10)))
+        print( p + theme_bw() )
 
-    print( p + theme_bw() )
+        p<-ggpairs(as.data.frame(sss), title=ll[,1], lower= list(continuous = ggpairs_points_limit_range ),
+        diag=list(continuous=wrap("barDiag", binwidth=nrow(ss)/10)))
+
+        print( p + theme_bw() )
+    }
 
     sss_long<-melt(sss)
 
-    p<-ggplot(ss_long,aes(Var2,value)) +
-    geom_violin(data=ss_long,fill = "grey", colour = "grey") +
-    geom_boxplot(data=ss_long,width=0.9,fill="grey",outlier.shape = NA) +
-    geom_violin(data=sss_long,fill = "black", colour = "black") +
-    geom_boxplot(data=sss_long,width=0.1,outlier.shape = NA) +
-    labs(y = "Position in rank",title = ll[,1] )
+    empty_cnt <- apply(sss,2,function(x) sum(as.numeric(is.finite(x))))
+    empty_cnt <- length(which(empty_cnt==0))
+    if ( empty_cnt == 0 ) { 
 
-    print( p + theme_bw() +
-    theme( axis.text=element_text(size=14),
-    axis.title=element_text(size=15),
-    plot.title = element_text(size = 14)))
+        p<-ggplot(ss_long,aes(Var2,value)) +
+        geom_violin(data=ss_long,fill = "grey", colour = "grey") +
+        geom_boxplot(data=ss_long,width=0.9,fill="grey",outlier.shape = NA) +
+        geom_violin(data=sss_long,fill = "black", colour = "black") +
+        geom_boxplot(data=sss_long,width=0.1,outlier.shape = NA) +
+        labs(y = "Position in rank",title = ll[,1] )
 
+        print( p + theme_bw() +
+        theme( axis.text=element_text(size=14),
+        axis.title=element_text(size=15),
+        plot.title = element_text(size = 14)))
+    }
 }
 
 

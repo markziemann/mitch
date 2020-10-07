@@ -1904,10 +1904,7 @@ plot3d_detailed_density <- function(res, i) {
     size <- ll$setSize
     sss <- res$detailed_sets[[i]]
     
-    mycor<-cor(sss,use="pairwise.complete.obs")
-    mycor <- apply(mycor,1,is.finite)
-    empty_cnt <- apply(mycor,1,function(x) {sum(as.numeric(x))})
-    empty_cnt <- length(which(empty_cnt == 0))
+    empty_cnt <- length(which(is.na(cor(sss,use="pairwise.complete.obs"))))
     if ( empty_cnt > 0 ) { return("Too few genes. Skipping density plot.") }
 
     if (d > 5) {
@@ -1945,11 +1942,8 @@ plot3d_detailed_points <- function(res, i) {
     size <- ll$setSize
     sss <- res$detailed_sets[[i]]
 
-    mycor<-cor(sss,use="pairwise.complete.obs")
-    mycor <- apply(mycor,1,is.finite)
-    empty_cnt <- apply(mycor,1,function(x) {sum(as.numeric(x))})
-    empty_cnt <- length(which(empty_cnt == 0))
-    if ( empty_cnt > 0 ) { return("Too few genes. Skipping density plot.") }
+    empty_cnt <- length(which(is.na(cor(sss,use="pairwise.complete.obs"))))
+    if ( empty_cnt > 0 ) { return("Too few genes. Skipping ggpairs plot.") }
     
     if (d > 5) {
         colnames(sss) <- paste("d", seq_len(ncol(res$input_profile)), sep = "")
@@ -1981,6 +1975,10 @@ plot3d_detailed_violin <- function(res, i) {
     ss <- res$ranked_profile
     ll <- res$enrichment_result[i, ]
     sss <- res$detailed_sets[[i]]
+
+    empty_cnt <- apply(sss,2,function(x) sum(as.numeric(is.finite(x))))
+    empty_cnt <- length(which(empty_cnt==0))
+    if ( empty_cnt > 0 ) { return("Too few genes. Skipping violin plot.") }
     
     if (d > 5) {
         colnames(sss) <- paste("d", seq_len(ncol(res$input_profile)), sep = "")
