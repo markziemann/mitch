@@ -1447,7 +1447,9 @@ get_os <- function(){
 mitch_calc <- function(x, genesets, minsetsize = 10, cores = detectCores() - 1,
     resrows = 50, priority = NULL) {
     
-    colnames(x) <- sub("-", "_", colnames(x))
+    colnames(x) <- gsub("[[:punct:]]", "_", colnames(x))
+    colnames(x) <- substr(colnames(x), 1, 14)
+    if ( any(duplicated(colnames(x)))) { stop("Duplicate column names.") }
     input_profile <- x
     input_genesets <- genesets
     ranked_profile <- mitch_rank(input_profile)

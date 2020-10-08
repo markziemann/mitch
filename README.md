@@ -81,3 +81,8 @@ In case you want the charts in PDF format, these can be generated as such:
 mitch_plots(res, outfile="mycharts.pdf")
 ```
 Take a look at an [example plot set](https://github.com/markziemann/mitch_paper/blob/master/figs/mycharts.pdf).
+
+### scRNA-seq
+This type of data is notoriously sparse.
+Mitch works best if there are >1000 genes detected in each cell type (contrast).
+If there are than 400 genes present it may cause mitch to run into an error in the MANOVA test due to insufficient degrees of freedom.
