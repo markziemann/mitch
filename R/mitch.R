@@ -1054,6 +1054,9 @@ gmt_import <- function(gmtfile) {
     genesets <- lapply(genesetLines, utils::tail, -2)
     names(genesets) <- unlist(lapply(genesetLines, head, 1))
     attributes(genesets)$originfile <- gmtfile
+    if( any(duplicated(names(genesets))) ) {
+        warning("Duplicated gene sets names detected")
+    }
     genesets
 }
 
