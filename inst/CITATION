@@ -1,0 +1,14 @@
+citEntry(entry="article",
+         title = "mitch: multi-contrast pathway enrichment for multi-omics and single-cell profiling data",
+         author = personList( as.person("Antony Kaspi"),
+                              as.person("Mark Ziemann")),
+         year = 2020,
+         journal = "BMC Genomics",
+         doi = "10.1186/s12864-020-06856-9",
+         volume = 21,
+         issue = 1,
+         pages = 447,
+         textVersion = 
+         paste("Kaspi, A., Ziemann, M.", 
+               "mitch: multi-contrast pathway enrichment for multi-omics and single-cell profiling data",
+                "BMC Genomics 21(1):447 (2020)" ) )
