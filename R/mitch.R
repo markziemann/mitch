@@ -2139,9 +2139,9 @@ mitch_report <- function(res, outfile , overwrite=FALSE) {
     rmd_tmpfile <- paste(rmd_tmpdir, "/mitch.Rmd", sep = "")
     html_tmp <- paste(paste(rmd_tmpdir, "/mitch_report.html", sep = ""))
     
-    DATANAME <- gsub(".html$", ".RData", HTMLNAME)
+    DATANAME <- gsub(".html$", ".rds", HTMLNAME)
     DATANAME <- paste(rmd_tmpdir, "/", DATANAME, sep = "")
-    save.image(DATANAME)
+    saveRDS(res,DATANAME)
     MYMESSAGE = paste("Dataset saved as \"", DATANAME, "\".")
     message(MYMESSAGE)
     

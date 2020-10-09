@@ -1,7 +1,9 @@
 ---
 title: "Mitch Report"
 author: "Antony Kaspi & Mark Ziemann"
-output: html_document
+output:
+  html_document:
+    smart: false
 theme: cosmo
 ---
 
@@ -36,7 +38,7 @@ suppressPackageStartupMessages({
 
 
 ```{r,peek,echo=FALSE}
-load(DATANAME)
+res <- readRDS(DATANAME)
 
 # capture the dimensionality of the data                                               
 d=ncol(res$input_profile)
