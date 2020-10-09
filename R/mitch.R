@@ -1087,7 +1087,7 @@ MANOVA <- function(x, genesets, minsetsize = 10, cores = detectCores() - 1,
     # calculate the hypotenuse for downstream use
     HYPOT = hypotenuse(apply(x, 2, length))
     
-    res <- pbmclapply(sets, function(set) {
+    res <- mclapply(sets, function(set) {
         
         inset <- rownames(x) %in% as.character(unlist(genesets[set]))
         
@@ -1174,7 +1174,7 @@ priority = NULL) {
 
     x<-x[which(!is.na(x)),,drop=FALSE]
     
-    res <- pbmclapply(sets, function(set) {
+    res <- mclapply(sets, function(set) {
         resample <- function(x, set) {
             sss <- x[which(rownames(x) %in% 
                 as.character(unlist(genesets[set]))),]
@@ -1437,7 +1437,6 @@ get_os <- function(){
 #' prioritised gene sets.
 #' @keywords mitch calc calculate manova 
 #' @import parallel
-#' @importFrom pbmcapply pbmclapply
 #' @import stats
 #' @importFrom plyr ldply
 #' @export
