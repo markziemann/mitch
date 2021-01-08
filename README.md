@@ -85,4 +85,4 @@ Take a look at an [example plot set](https://github.com/markziemann/mitch_paper/
 ### scRNA-seq
 This type of data is notoriously sparse.
 Mitch works best if there are >1000 genes detected in each cell type (contrast).
-If there are than 400 genes present it may cause mitch to run into an error in the MANOVA test due to insufficient degrees of freedom.
+If there are <400 genes present it may cause mitch to run into an error in the MANOVA test due to insufficient degrees of freedom.
