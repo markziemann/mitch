@@ -1,3 +1,7 @@
+CHANGES IN VERSION 1.3.1
+------------------------
+   o A fix to the colnames in seurat V4
+
 CHANGES IN VERSION 1.0.12
 ------------------------
    o A fix to problems in >3D plots caused by contrast names

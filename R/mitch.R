@@ -405,7 +405,8 @@ cuffdiff_score <- function(y , geneIDcol = geneIDcol ) {
 
 
 seurat_score <- function(y , geneIDcol = geneIDcol ) {
-    
+
+    colnames(y) <- gsub("avg_log2FC","avg_logFC",colnames(y))
     NCOL = ncol(y)
     if (NCOL < 2) {
         stop("Error: there are <2 columns in the input, 'p_val' and 'avg_logFC'
