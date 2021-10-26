@@ -1,6 +1,6 @@
 Package: mitch
 Title: Multi-Contrast Gene Set Enrichment Analysis
-Version: 1.6.0
+Version: 1.7.0
 Authors@R: c(
     person(given = "Mark",
         family = "Ziemann",
