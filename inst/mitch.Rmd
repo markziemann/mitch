@@ -905,7 +905,7 @@ twodimplot<-function(i) {
 
     sss_long<-melt(sss)
 
-    p<-ggplot(ss_long,aes(Var2,value)) +
+    p<-ggplot(ss_long,aes(variable,value)) +
     geom_violin(data=ss_long,fill = "grey", colour = "grey") +
     geom_boxplot(data=ss_long,width=0.9,fill="grey",outlier.shape = NA) +
     geom_violin(data=sss_long,fill = "black", colour = "black") +
@@ -981,7 +981,7 @@ ndplot<-function(i) {
     empty_cnt <- length(which(empty_cnt==0))
     if ( empty_cnt == 0 ) { 
 
-        p<-ggplot(ss_long,aes(Var2,value)) +
+        p<-ggplot(ss_long,aes(variable,value)) +
         geom_violin(data=ss_long,fill = "grey", colour = "grey") +
         geom_boxplot(data=ss_long,width=0.9,fill="grey",outlier.shape = NA) +
         geom_violin(data=sss_long,fill = "black", colour = "black") +

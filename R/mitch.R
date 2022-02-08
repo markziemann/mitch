@@ -41,7 +41,7 @@
 NULL
 
 #' @import utils
-utils::globalVariables(c("p.adjustMANOVA", "effect", "p.adjustANOVA", "Var2",
+utils::globalVariables(c("p.adjustMANOVA", "effect", "p.adjustANOVA", "variable",
     "value", "..density..","dummy_x","dummy_y"))
 
 
@@ -1759,7 +1759,7 @@ plot2d_detailed_violin <- function(res, i) {
     ss_long <- melt(ss)
     sss_long <- melt(sss)
     
-    p <- ggplot(ss_long, aes(Var2, value)) + geom_violin(data = ss_long,
+    p <- ggplot(ss_long, aes(variable, value)) + geom_violin(data = ss_long,
         fill = "grey", colour = "grey") + geom_boxplot(data = ss_long, 
         width = 0.9, fill = "grey", outlier.shape = NA, 
         coef = 0) + geom_violin(data = sss_long, fill = "black", 
@@ -1990,7 +1990,7 @@ plot3d_detailed_violin <- function(res, i) {
     }
     ss_long <- melt(ss)
     sss_long <- melt(sss)
-    p <- ggplot(ss_long, aes(Var2, value)) +
+    p <- ggplot(ss_long, aes(variable, value)) +
         geom_violin(data = ss_long, fill = "grey", colour = "grey") +
         geom_boxplot(data = ss_long, width = 0.9, fill = "grey", 
         outlier.shape = NA, coef = 0) +
