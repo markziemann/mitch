@@ -4,7 +4,9 @@
 \name{myList}
 \alias{myList}
 \title{myList: A list of three edgeR results}
-\format{data frame}
+\format{
+data frame
+}
 \usage{
 data(myList)
 }

@@ -904,8 +904,10 @@ twodimplot<-function(i) {
     abline(v=0,h=0,lty=2,lwd=2,col="blue")
 
     sss_long<-melt(sss)
+    colnames(sss_long) <- c("gene","contrast","value")
+    colnames(ss_long) <- c("gene","contrast","value")
 
-    p<-ggplot(ss_long,aes(Var2,value)) +
+    p<-ggplot(ss_long,aes(contrast,value)) +
     geom_violin(data=ss_long,fill = "grey", colour = "grey") +
     geom_boxplot(data=ss_long,width=0.9,fill="grey",outlier.shape = NA) +
     geom_violin(data=sss_long,fill = "black", colour = "black") +
@@ -976,12 +978,14 @@ ndplot<-function(i) {
     }
 
     sss_long<-melt(sss)
+    colnames(sss_long) <- c("gene","contrast","value")
+    colnames(ss_long) <- c("gene","contrast","value")
 
     empty_cnt <- apply(sss,2,function(x) sum(as.numeric(is.finite(x))))
     empty_cnt <- length(which(empty_cnt==0))
     if ( empty_cnt == 0 ) { 
 
-        p<-ggplot(ss_long,aes(Var2,value)) +
+        p<-ggplot(ss_long,aes(contrast,value)) +
         geom_violin(data=ss_long,fill = "grey", colour = "grey") +
         geom_boxplot(data=ss_long,width=0.9,fill="grey",outlier.shape = NA) +
         geom_violin(data=sss_long,fill = "black", colour = "black") +
@@ -1124,6 +1128,7 @@ if (d!=1) {
     palette <- colorRampPalette(c("white", "yellow","orange" ,"red","darkred","black"))
 
     ss_long<-melt(ss)
+    colnames(ss_long) <- c("gene","contrast","value")
 
     if ( d<3 ) {
 

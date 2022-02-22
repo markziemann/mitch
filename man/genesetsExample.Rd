@@ -4,7 +4,9 @@
 \name{genesetsExample}
 \alias{genesetsExample}
 \title{Reactome gene sets}
-\format{A list of gene sets}
+\format{
+A list of gene sets
+}
 \source{
 Reactome website: https://reactome.org/
 }

@@ -4,7 +4,9 @@
 \name{rna}
 \alias{rna}
 \title{RNA profile}
-\format{data frame}
+\format{
+data frame
+}
 \usage{
 data(rna)
 }

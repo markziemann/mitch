@@ -4,7 +4,9 @@
 \name{k9a}
 \alias{k9a}
 \title{H3K9ac profile}
-\format{data frame}
+\format{
+data frame
+}
 \usage{
 data(k9a)
 }
