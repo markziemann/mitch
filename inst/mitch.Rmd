@@ -12,9 +12,9 @@ date generated: `r Sys.Date()`
 ## Background
 
 Mitch performs unidimensional and multidimensional gene set enrichment analysis. The
-concept behind this dates to work by Cox and Mann 
-(https://doi.org/10.1186/1471-2105-13-S16-S12). This implementation is suited to R based 
-workflows of multi-omics datasets. This software was developed by Antony Kaspi and Mark 
+concept behind this dates to work by Cox and Mann
+(https://doi.org/10.1186/1471-2105-13-S16-S12). This implementation is suited to R based
+workflows of multi-omics datasets. This software was developed by Antony Kaspi and Mark
 Ziemann. Learn more about Mitch at the website: https://github.com/markziemann/Mitch
 
 ## Input profiles
@@ -22,6 +22,7 @@ Ziemann. Learn more about Mitch at the website: https://github.com/markziemann/M
 Here is the first few lines of the input profile.
 
 ```{r,checklibraries,echo=FALSE}
+
 suppressPackageStartupMessages({
     library("echarts4r")
     library("dplyr")
@@ -33,11 +34,14 @@ suppressPackageStartupMessages({
     library("ggplot2")
     library("GGally")
     library("pkgload")
+    library("kableExtra")
 })
+
 ```
 
 
 ```{r,peek,echo=FALSE}
+
 res <- readRDS(DATANAME)
 
 # capture the dimensionality of the data                                               
@@ -52,7 +56,8 @@ if ( d>5 ) {
 
     colnames(mydims)<-c("dimension","contrast_name")
 
-    print(kable( mydims, caption = "Profile dimensions" ))
+    print(kbl( mydims, caption = "Profile dimensions" ) %>%
+    kable_styling("hover", full_width = FALSE))
 
     colnames(res$input_profile)<- paste("d",seq_len(d),sep="")
 
@@ -62,14 +67,19 @@ if ( d>5 ) {
 
 }
 
-head(res$input_profile)
+head(res$input_profile) %>%
+  kbl(caption="The profiling data being passed to mitch") %>%
+  kable_styling("hover", full_width = FALSE)
+
 ```
 
 Here are some metrics about the input data profile:
+
 ```{r, metrics, echo=FALSE}
+
 if (d==1) {
 
-    formatted<-t(as.data.frame(res$analysis_metrics[ c(1,2,3,4,5 ) ])) 
+    formatted<-t(as.data.frame(res$analysis_metrics[ c(1,2,3,4,5 ) ]))
 
 } else if (d==2) {
 
@@ -89,11 +99,16 @@ if (d==1) {
 
 colnames(formatted)="Profile metrics"
 
-kable( formatted, caption = "Profile metrics" )
+formatted %>%
+  kbl(caption="Profiling data metrics") %>%
+  kable_styling("hover", full_width = FALSE)
+
 ```
 
 Here is a plot of the input profiles. Note the dynamic ranges.
+
 ```{r, scatterplot, echo=FALSE,fig.height = 6, fig.width = 6.5, message=FALSE, warning=FALSE}
+
 if ( d==1 ) {
 
     par(mfrow=c(2,1))
@@ -132,10 +147,13 @@ if ( d==1 ) {
     print( p +  theme_bw() )
 
 }
+
 ```
 
 Here is the contour plot of the profile including all detected genes.
+
 ```{r, contourplot, echo=FALSE,fig.height = 6, fig.width = 6.5,warning=FALSE, message=FALSE}
+
 palette <- colorRampPalette(c("white", "yellow","orange" ,"red","darkred","black"))
 
 #Contour of all the data
@@ -184,7 +202,7 @@ if (d==1) {
     }
 
     #pairs contour plot
-    p<-ggpairs(as.data.frame(ss), title="Contour plot of all genes after ranking" , 
+    p<-ggpairs(as.data.frame(ss), title="Contour plot of all genes after ranking" ,
     lower=list(continuous=ggpairs_func),
     diag=list(continuous=wrap("barDiag", binwidth=nrow(ss)/100)))
 
@@ -220,11 +238,15 @@ if (d==1) {
     }
 
 }
+
 ```
 
 ## Input genesets
+
 Here are some metrics about the gene sets used:
+
 ```{r,input_geneset_metrics1,results="asis",echo=FALSE}
+
 ORIGINFILE=attributes(res$input_genesets)$originfile
 
 cat(paste("GMT file of genesets:",ORIGINFILE,"<br>"))
@@ -237,10 +259,15 @@ rownames(formatted)=rownames(unformatted)
 
 colnames(formatted)="Gene sets metrics"
 
-kable( formatted , col.names = "Gene sets metrics" ,caption = "Gene sets metrics" )
+#kable( formatted , col.names = "Gene sets metrics" ,caption = "Gene sets metrics" )
+formatted %>%
+  kbl(caption="Gene set metrics") %>%
+  kable_styling("hover", full_width = F)
+
 ```
 
 ```{r,input_geneset_metrics2,results="asis",echo=FALSE ,fig.height = 7, fig.width = 7 ,fig.show="all"}
+
 par(mfrow=c(3,1))
 
 geneset_counts<-res$analysis_metrics$geneset_counts
@@ -283,8 +310,10 @@ if ( d==2 ) {
 
         colnames(sector_count)[ncol(sector_count)]<-"Count"
 
-        kable(sector_count ,caption = "Genes by sector" ,row.names=TRUE)
-
+#        kable(sector_count ,caption = "Genes by sector" ,row.names=TRUE)
+         sector_count %>%
+         kbl(caption="Genes by sector") %>%
+         kable_styling("hover", full_width = FALSE)
     }
 
 }
@@ -292,6 +321,7 @@ if ( d==2 ) {
 ```
 
 ```{r,input_geneset_metrics3,results="asis",echo=FALSE,message=FALSE,fig.height = 7, fig.width = 7}
+
 if (d<2) {
 
     nsig=length(which(res$enrichment_result$p.adjustANOVA<0.05))
@@ -345,7 +375,7 @@ if (d==2) {
     xx<-barplot(a$a,names.arg=rownames(a),main="number of genesets FDR<0.05")
 
     text(x = xx, y = a$a, label = a$a , pos = 1, cex = 1)
-} 
+}
 
 if ( nsig > 0 ) {
 
@@ -363,7 +393,11 @@ if ( nsig > 0 ) {
 
             colnames(sector_count)[ncol(sector_count)]<-"Count"
 
-            kable(sector_count ,caption = "Gene sets by sector" ,row.names=TRUE)
+#            kable(sector_count ,caption = "Gene sets by sector" ,row.names=TRUE)
+            sector_count %>%
+            kbl(caption="Gene sets by sector") %>%
+            kable_styling("hover", full_width = FALSE)
+
         }
     }
 }
@@ -371,6 +405,7 @@ if ( nsig > 0 ) {
 ```
 
 ## Interactive enrichment scatterplot
+
 ```{r,echart1d,results="asis",echo=FALSE, fig.height = 7, fig.width = 7 ,fig.show="all", message=FALSE}
 
 if (d==1) {
@@ -522,10 +557,10 @@ if (d!=1) {
             colnames(myres2)[4]<-"xx"
             colnames(myres2)[5]<-"yy"
 
-            p2 <- myres2 %>%  
-                tibble::rownames_to_column("model") %>% 
+            p2 <- myres2 %>%
+                tibble::rownames_to_column("model") %>%
                 mutate(set = paste(set, setSize, p.adjustMANOVA , s.dist , sep = ",")) %>%
-                e_charts(x = xx) %>% 
+                e_charts(x = xx) %>%
                 e_legend(show = FALSE) %>%
                 e_x_axis(name = XCOL) %>%  # add x axis name
                 e_y_axis(name = YCOL) %>%  # add y axis name
@@ -533,8 +568,8 @@ if (d!=1) {
                 e_tooltip(formatter = htmlwidgets::JS("
                     function(params){
                     var vals = params.name.split(',')
-                    return('<strong>' + vals[0] + 
-                    '</strong><br />s.x-axis: ' + parseFloat(params.value[0]).toFixed(2) + 
+                    return('<strong>' + vals[0] +
+                    '</strong><br />s.x-axis: ' + parseFloat(params.value[0]).toFixed(2) +
                     '<br />s.y-axis: ' +  parseFloat(params.value[1]).toFixed(2)) +
                     '<br />setSize: ' + vals[1] +
                     '<br />p-adjust MANOVA: ' + Number(vals[2]).toPrecision(2) +
@@ -574,7 +609,7 @@ if (d!=1) {
 
         if ( d<3 ) {
 
-            myres2<-myres[,c(1,which(names(myres) %in% "p.adjustMANOVA"),2, 4:(4+d-1) , 
+            myres2<-myres[,c(1,which(names(myres) %in% "p.adjustMANOVA"),2, 4:(4+d-1) ,
                 which(names(myres) %in% "s.dist") )]
             myres2$set<-sub(",","",myres2$set)
 
@@ -607,7 +642,7 @@ if (d!=1) {
 
             plan<-combinations(n = d, r = 2, v = seq_len(d), repeats.allowed = FALSE)
 
-            myres<-myres[,c(1, which(names(myres) %in% "p.adjustMANOVA") ,2,4:(4+d-1), 
+            myres<-myres[,c(1, which(names(myres) %in% "p.adjustMANOVA") ,2,4:(4+d-1),
                 which(names(myres) %in% "s.dist") ), which(names(myres) %in% "SD")]
 
             p<-list()
@@ -626,6 +661,7 @@ if (d!=1) {
 ```
 
 ```{r,heatmap,results="asis",echo=FALSE, fig.height = 10, fig.width = 7 ,fig.show="all", message=FALSE}
+
 if (d!=1) {
 
     if (resrows>2) {
@@ -667,6 +703,7 @@ if (d!=1) {
     }
 
 }
+
 ```
 
 ```{r,effectsize,results="asis",echo=FALSE, fig.height = 7, fig.width = 7 ,fig.show="all", message=FALSE}
@@ -707,10 +744,13 @@ if (d!=1) {
 
     p2
 }
+
 ```
 
 ## Results table
+
 ```{r,results_table,results="asis",echo=FALSE}
+
 if ( d==1 ) {
 
     resrows=length(res$detailed_sets)
@@ -734,13 +774,17 @@ formatted<-myres
 
 formatted[,1]<-gsub("_"," ",myres[,1])
 
-kable( formatted , col.names = colnames(formatted) , row.names=FALSE, caption = cat(paste("Top N=",resrows,"gene sets")) ,digits=100)
+kable( formatted , col.names = colnames(formatted) , row.names=FALSE, caption = cat(paste("Top N=",resrows,"gene sets")) ,digits=100) %>%
+kable_styling("hover", full_width = FALSE)
 
 cat("<hr><br>")
+
 ```
 
 ## Results (complete table)
+
 ```{r,results_table_complete,results="asis",echo=FALSE}
+
 myres<-res$enrichment_result
 
 if ( d==1 ) {
@@ -769,14 +813,18 @@ HEADER=paste("<br><details><summary><b>","Click HERE to show results for all gen
 
 cat(HEADER)
 
-kable(formatted, col.names=colnames(formatted),row.names=FALSE,caption = "Complete results",digits=100)
+kable(formatted, col.names=colnames(formatted),row.names=FALSE,caption = "Complete results",digits=100) %>%
+kable_styling("hover", full_width = FALSE)
+
 
 cat("<br></p></details>")
 
 cat("<hr><br>")
+
 ```
 
 ```{r,detailed_geneset_reports1d,results="asis",echo=FALSE,fig.height=6, fig.width=6 ,out.width = '80%',comment=NA, message=FALSE}
+
 if (d==1) {
 
     cat("<h2>Detailed Gene set reports</h2><br>")
@@ -795,7 +843,7 @@ if (d==1) {
 
         cat(paste("<b>",as.character(myres[i,1]) ,"</b><br>"))
 
-        print(kable(mydat,format='markdown',caption=as.character(t(myres[i,1]))) )
+        print(kable(mydat,format='markdown',caption=as.character(t(myres[i,1]))) %>% kable_styling("hover", full_width = FALSE) )
 
         cat('\n')
 
@@ -856,7 +904,7 @@ if (d==1) {
 
         cat("<br>")
 
-        print(kable(head(tops,n=20L),col.names=colnames(tops),format="markdown",row.names=FALSE,caption="Top 20 genes",digits=100))
+        print(kable(head(tops,n=20L),col.names=colnames(tops),format="markdown",row.names=FALSE,caption="Top 20 genes",digits=100) %>% kable_styling("hover", full_width = FALSE) )
 
         cat('\n')
 
@@ -864,7 +912,7 @@ if (d==1) {
 
         cat(HEADER)
 
-        print(kable(tops,col.names=colnames(tops),format="markdown",row.names=FALSE,caption="All member genes",digits=100))
+        print(kable(tops,col.names=colnames(tops),format="markdown",row.names=FALSE,caption="All member genes",digits=100) %>% kable_styling("hover", full_width = FALSE) )
 
         cat('\n')
 
@@ -875,9 +923,8 @@ if (d==1) {
     }
 
 }
+
 ```
-
-
 
 ```{r,detailed_geneset_reports2d,results="asis",echo=FALSE,fig.height=5, fig.width=6 ,out.width = '80%',comment=NA, message=FALSE}
 
@@ -979,7 +1026,7 @@ ndplot<-function(i) {
 
     empty_cnt <- apply(sss,2,function(x) sum(as.numeric(is.finite(x))))
     empty_cnt <- length(which(empty_cnt==0))
-    if ( empty_cnt == 0 ) { 
+    if ( empty_cnt == 0 ) {
 
         p<-ggplot(ss_long,aes(Var2,value)) +
         geom_violin(data=ss_long,fill = "grey", colour = "grey") +
@@ -994,7 +1041,6 @@ ndplot<-function(i) {
         plot.title = element_text(size = 14)))
     }
 }
-
 
 
 topgenelist<-function(i) {
@@ -1084,7 +1130,7 @@ topgenelist<-function(i) {
 
     topgenes<-topgenes[,c(3,1,2)]
 
-    print(kable(head(topgenes,n=20L),col.names=colnames(topgenes),format="markdown",row.names=FALSE,caption="Top 20 genes",digits=100))
+    print(kable(head(topgenes,n=20L),col.names=colnames(topgenes),format="markdown",row.names=FALSE,caption="Top 20 genes",digits=100) %>% kable_styling("hover", full_width = FALSE) )
 
     cat('\n')
 
@@ -1094,7 +1140,7 @@ topgenelist<-function(i) {
 
     sss<-res$detailed_sets[[i]]
 
-    print(kable(sss,format="markdown",row.names=TRUE,caption="All member genes",digits=100))
+    print(kable(sss,format="markdown",row.names=TRUE,caption="All member genes",digits=100) %>% kable_styling("hover", full_width = FALSE) )
 
     cat('\n')
 
@@ -1137,7 +1183,7 @@ if (d!=1) {
 
             for ( i in seq_len(resrows )) {
 
-                mydat = NULL                                                    
+                mydat = NULL
 
                 mydat$metrics<-names(myres[2:ncol(myres)])
 
@@ -1149,7 +1195,7 @@ if (d!=1) {
 
                 cat(paste("<b>",as.character(myres[i,1]) ,"</b><br>"))
 
-                print(kable(mydat,format='markdown',caption=as.character(t(myres[i,1]))) )
+                print(kable(mydat,format='markdown',caption=as.character(t(myres[i,1]))) %>% kable_styling("hover", full_width = FALSE) )
 
                 cat('\n')
 
@@ -1181,7 +1227,7 @@ if (d!=1) {
 
             cat(paste("<b>",as.character(myres[i,1]) ,"</b><br>"))
 
-            print(kable(mydat,format='markdown',digits=5,caption=as.character(t(myres[i,1]))))
+            print(kable(mydat,format='markdown',digits=5,caption=as.character(t(myres[i,1]))) %>% kable_styling("hover", full_width = FALSE) )
 
             cat('\n')
 
@@ -1200,12 +1246,15 @@ if (d!=1) {
     }
 
 }
+
 ```
 
 Here is the session info with all the versions of packages used.
 
 ```{r session_info, include=TRUE, echo=TRUE, results='markup'}
+
 sessionInfo()
+
 ```
 
 END of report

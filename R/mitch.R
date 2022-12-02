@@ -2112,6 +2112,7 @@ mitch_plots <- function(res, outfile = "Rplots.pdf") {
 #' @import knitr
 #' @importFrom rmarkdown render
 #' @import echarts4r
+#' @import kableExtra
 mitch_report <- function(res, outfile , overwrite=FALSE) {
 
     df <- data.frame(dummy_x = seq(20), dummy_y = rnorm(20, 10, 3))
