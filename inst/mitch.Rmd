@@ -259,7 +259,6 @@ rownames(formatted)=rownames(unformatted)
 
 colnames(formatted)="Gene sets metrics"
 
-#kable( formatted , col.names = "Gene sets metrics" ,caption = "Gene sets metrics" )
 formatted %>%
   kbl(caption="Gene set metrics") %>%
   kable_styling("hover", full_width = F)
@@ -310,7 +309,6 @@ if ( d==2 ) {
 
         colnames(sector_count)[ncol(sector_count)]<-"Count"
 
-#        kable(sector_count ,caption = "Genes by sector" ,row.names=TRUE)
          sector_count %>%
          kbl(caption="Genes by sector") %>%
          kable_styling("hover", full_width = FALSE)
@@ -393,7 +391,6 @@ if ( nsig > 0 ) {
 
             colnames(sector_count)[ncol(sector_count)]<-"Count"
 
-#            kable(sector_count ,caption = "Gene sets by sector" ,row.names=TRUE)
             sector_count %>%
             kbl(caption="Gene sets by sector") %>%
             kable_styling("hover", full_width = FALSE)
@@ -774,7 +771,7 @@ formatted<-myres
 
 formatted[,1]<-gsub("_"," ",myres[,1])
 
-kable( formatted , col.names = colnames(formatted) , row.names=FALSE, caption = cat(paste("Top N=",resrows,"gene sets")) ,digits=100) %>%
+kbl( formatted , format="markdown", row.names=FALSE, caption = cat(paste("Top N=",resrows,"gene sets")) ,digits=100) %>%
 kable_styling("hover", full_width = FALSE)
 
 cat("<hr><br>")
@@ -813,7 +810,7 @@ HEADER=paste("<br><details><summary><b>","Click HERE to show results for all gen
 
 cat(HEADER)
 
-kable(formatted, col.names=colnames(formatted),row.names=FALSE,caption = "Complete results",digits=100) %>%
+kbl(formatted, format="html", row.names=FALSE, caption = "Complete results",digits=100) %>%
 kable_styling("hover", full_width = FALSE)
 
 
@@ -843,9 +840,12 @@ if (d==1) {
 
         cat(paste("<b>",as.character(myres[i,1]) ,"</b><br>"))
 
-        print(kable(mydat,format='markdown',caption=as.character(t(myres[i,1]))) %>% kable_styling("hover", full_width = FALSE) )
+        suppressWarnings(tbl <- kbl(mydat,format='pipe',caption=as.character(t(myres[i,1]))) %>%
+            kable_styling("hover", full_width = FALSE) )
 
-        cat('\n')
+        suppressWarnings(print(tbl))
+
+        cat('\n\n<!-- -->\n\n')
 
         cat("<br>")
 
@@ -904,17 +904,23 @@ if (d==1) {
 
         cat("<br>")
 
-        print(kable(head(tops,n=20L),col.names=colnames(tops),format="markdown",row.names=FALSE,caption="Top 20 genes",digits=100) %>% kable_styling("hover", full_width = FALSE) )
+        suppressWarnings( tbl <- kbl(head(tops,n=20L), format='pipe', row.names=FALSE,caption="Top 20 genes",digits=100) %>%
+                kable_styling("hover", full_width = FALSE))
 
-        cat('\n')
+        suppressWarnings( print(tbl) )
+
+        cat('\n\n<!-- -->\n\n')
 
         HEADER=paste("<br><details><summary><b>","Click HERE to show all gene set members","</b></summary><br><p>",sep=" " )
 
         cat(HEADER)
 
-        print(kable(tops,col.names=colnames(tops),format="markdown",row.names=FALSE,caption="All member genes",digits=100) %>% kable_styling("hover", full_width = FALSE) )
+        suppressWarnings( tbl <- kbl(tops, format='pipe', row.names=FALSE, caption="All member genes",digits=100) %>%
+                kable_styling("hover", full_width = FALSE) )
 
-        cat('\n')
+        suppressWarnings( print(tbl) )
+
+        cat('\n\n<!-- -->\n\n')
 
         cat("<br></p></details>")
 
@@ -991,7 +997,6 @@ ggpairs_points_limit_range <- function(data ,mapping, ...){
     scale_y_continuous( limits = range(min(ss[,gsub("~","",as.character(mapping[2]))]),max(ss[,gsub("~","",as.character(mapping[2]))])) )
     p
 }
-
 
 
 ndplot<-function(i) {
@@ -1134,9 +1139,12 @@ topgenelist<-function(i) {
 
     topgenes<-topgenes[,c(3,1,2)]
 
-    print(kable(head(topgenes,n=20L),col.names=colnames(topgenes),format="markdown",row.names=FALSE,caption="Top 20 genes",digits=100) %>% kable_styling("hover", full_width = FALSE) )
+    suppressWarnings( tbl <- kbl(head(topgenes,n=20L), format='pipe', row.names=FALSE, caption="Top 20 genes", digits=100) %>%
+        kable_styling("hover", full_width = FALSE) )
 
-    cat('\n')
+    suppressWarnings( print(tbl) )
+
+    cat('\n\n<!-- -->\n\n')
 
     HEADER=paste("<br><details><summary><b>","Click HERE to show all gene set members","</b></summary><br><p>",sep=" " )
 
@@ -1144,9 +1152,12 @@ topgenelist<-function(i) {
 
     sss<-res$detailed_sets[[i]]
 
-    print(kable(sss,format="markdown",row.names=TRUE,caption="All member genes",digits=100) %>% kable_styling("hover", full_width = FALSE) )
+    suppressWarnings( tbl <- kbl(sss, format='pipe', row.names=TRUE, caption="All member genes", digits=100) %>%
+        kable_styling("hover", full_width = FALSE) )
 
-    cat('\n')
+    suppressWarnings( print(tbl) )
+
+    cat('\n\n<!-- -->\n\n')
 
     cat("<br></p></details>")
 
@@ -1200,9 +1211,12 @@ if (d!=1) {
 
                 cat(paste("<b>",as.character(myres[i,1]) ,"</b><br>"))
 
-                print(kable(mydat,format='markdown',caption=as.character(t(myres[i,1]))) %>% kable_styling("hover", full_width = FALSE) )
+                suppressWarnings( tbl <- kbl(mydat,format='pipe', caption=as.character(t(myres[i,1]))) %>%
+                    kable_styling("hover", full_width = FALSE) )
 
-                cat('\n')
+                suppressWarnings( print(tbl) )
+
+                cat('\n\n<!-- -->\n\n')
 
                 cat("<br>")
 
@@ -1232,9 +1246,12 @@ if (d!=1) {
 
             cat(paste("<b>",as.character(myres[i,1]) ,"</b><br>"))
 
-            print(kable(mydat,format='markdown',digits=5,caption=as.character(t(myres[i,1]))) %>% kable_styling("hover", full_width = FALSE) )
+            suppressWarnings( tbl <- kbl(mydat,format='pipe',digits=5,caption=as.character(t(myres[i,1]))) %>%
+                    kable_styling("hover", full_width = FALSE) )
 
-            cat('\n')
+            suppressWarnings( print(tbl) )
+
+            cat('\n\n<!-- -->\n\n')
 
             cat("<br>")
 
