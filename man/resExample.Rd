@@ -4,7 +4,9 @@
 \name{resExample}
 \alias{resExample}
 \title{resExample: Example mitch result}
-\format{list of mixed data types}
+\format{
+list of mixed data types
+}
 \usage{
 data(resExample)
 }

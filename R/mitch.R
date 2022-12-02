@@ -41,7 +41,7 @@
 NULL
 
 #' @import utils
-utils::globalVariables(c("p.adjustMANOVA", "effect", "p.adjustANOVA", "Var2",
+utils::globalVariables(c("p.adjustMANOVA", "effect", "p.adjustANOVA", "contrast",
     "value", "..density..","dummy_x","dummy_y"))
 
 
@@ -1757,9 +1757,11 @@ plot2d_detailed_violin <- function(res, i) {
     X_AXIS = paste("Rank in contrast", colnames(ss)[1])
     Y_AXIS = paste("Rank in contrast", colnames(ss)[2])
     ss_long <- melt(ss)
+    colnames(ss_long) <- c("gene","contrast","value")
     sss_long <- melt(sss)
+    colnames(sss_long) <- c("gene","contrast","value")
     
-    p <- ggplot(ss_long, aes(Var2, value)) + geom_violin(data = ss_long,
+    p <- ggplot(ss_long, aes(contrast, value)) + geom_violin(data = ss_long,
         fill = "grey", colour = "grey") + geom_boxplot(data = ss_long, 
         width = 0.9, fill = "grey", outlier.shape = NA, 
         coef = 0) + geom_violin(data = sss_long, fill = "black", 
@@ -1989,8 +1991,10 @@ plot3d_detailed_violin <- function(res, i) {
         colnames(sss) <- paste("d", seq_len(ncol(res$input_profile)), sep = "")
     }
     ss_long <- melt(ss)
+colnames(ss_long) <- c("gene","contrast","value")
     sss_long <- melt(sss)
-    p <- ggplot(ss_long, aes(Var2, value)) +
+colnames(sss_long) <- c("gene","contrast","value")
+    p <- ggplot(ss_long, aes(contrast, value)) +
         geom_violin(data = ss_long, fill = "grey", colour = "grey") +
         geom_boxplot(data = ss_long, width = 0.9, fill = "grey", 
         outlier.shape = NA, coef = 0) +

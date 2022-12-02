@@ -4,7 +4,9 @@
 \name{myImportedData}
 \alias{myImportedData}
 \title{myImportedData: Example imported profiles}
-\format{data frame}
+\format{
+data frame
+}
 \usage{
 data(myImportedData)
 }

@@ -4,7 +4,9 @@
 \name{k36a}
 \alias{k36a}
 \title{H3K36ac profile}
-\format{data frame}
+\format{
+data frame
+}
 \usage{
 data(k36a)
 }
