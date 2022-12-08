@@ -865,9 +865,10 @@ preranked_score <- function(y, joinType , geneIDcol = geneIDcol ) {
 #' (either in rowname or separate column) and nothing else. 'preranked' is an 
 #' alias for 'prescored'.
 #' @param geneIDcol the column containing gene names. If gene names are 
+#' specified as row names, then geneIDcol=NULL.
 #' @param joinType the type of join to perform, either 'inner' or 'full'.
 #' By default, joins are 'inner' except for Seurat and muscat where full is 
-#' used. specified as row names, then geneIDcol=NULL.
+#' used.
 #' @param geneTable a 2 column table mapping gene identifiers in the profile to
 #' gene identifiers in the gene sets. 
 #' @return a multi-column table compatible with mitch_calc analysis.
