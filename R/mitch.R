@@ -69,13 +69,13 @@ mapGeneIds <- function(y, z) {
             sum(as.numeric(as.character(x)))
         })
 
-        colnames(z) = c("geneidentifiers", "y")
     }
+    colnames(z) = c("geneidentifiers", "y")
     z
 }
 
 
-edger_score <- function(y , geneIDcol = geneIDcol ) {
+edger_score <- function(y , geneIDcol = geneIDcol) {
     
     NCOL = ncol(y)
     if (NCOL < 2) {
@@ -816,7 +816,7 @@ diffbind_score <- function(y , geneIDcol = geneIDcol ) {
 }
 
 
-preranked_score <- function(y, joinType , geneIDcol = geneIDcol ) {
+preranked_score <- function(y, joinType , geneIDcol ) {
 
     if (!is.null(attributes(y)$geneIDcol)) {
         NCOL = ncol(y)
@@ -855,7 +855,7 @@ preranked_score <- function(y, joinType , geneIDcol = geneIDcol ) {
 #' expression metric by multiplying the sign of the log fold change by the 
 #' -log10 of the p-value. If this behaviour is not desired, mitch_import can be
 #' bypassed in favour of another scoring metric.
-#' @param x a list of differential expression tables
+#' @param x a list of differential expression tables.
 #' @param DEtype the program that generated the differential expression table
 #' Valid options are 'edgeR', 'DESeq2', 'limma', 'ABSSeq', 'Sleuth', 'Seurat',
 #' 'topConfects', 'muscat', 'Swish', 'scDE', 'MAST', 'DEsingle', 'ballgown',
@@ -990,7 +990,7 @@ mitch_import <- function(x, DEtype, geneIDcol = NULL, geneTable = NULL,
     } else if (DEtype == "diffbind" ) {
         xx <- lapply(x, diffbind_score)
     } else if (DEtype == "preranked" || DEtype == "prescored") {
-        xx <- lapply(x, preranked_score, joinType = joinType)
+        xx <- lapply(x, preranked_score, joinType = joinType, geneIDcol = geneIDcol)
     } else {
         stop(paste("Specified DEtype does not match one of the following:",
         validDEtype))
