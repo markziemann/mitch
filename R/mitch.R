@@ -66,7 +66,7 @@ mapGeneIds <- function(y, z) {
             z$geneidentifiers = NULL
         }
         z <- aggregate(. ~ GeneSymbol, z, function(x) {
-            sum(as.numeric(as.character(x)))
+            mean(as.numeric(as.character(x)))
         })
 
     }
