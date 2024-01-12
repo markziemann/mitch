@@ -1,3 +1,7 @@
+CHANGES IN VERSION 1.15.1
+------------------------
+   o A change of the gene aggregation algorithm to allow enrichment analysis of infinium methylation analysis.
+
 CHANGES IN VERSION 1.3.1
 ------------------------
    o A fix to the colnames in seurat V4
