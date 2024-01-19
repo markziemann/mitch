@@ -83,6 +83,16 @@ mitch_plots(res, outfile="mycharts.pdf")
 Take a look at an [example plot set](https://github.com/markziemann/mitch_paper/blob/master/figs/mycharts.pdf).
 
 ### scRNA-seq
+
 This type of data is notoriously sparse.
 Mitch works best if there are >1000 genes detected in each cell type (contrast).
 If there are <400 genes present it may cause mitch to run into an error in the MANOVA test due to insufficient degrees of freedom.
+
+### Infinium DNA methylation data
+
+Mitch can be applied to Infinium Beadarray methylation data if you have limma results for probes.
+Please see our solution described at our other [repository](https://github.com/markziemann/gmea).
+
+### Contrbutions
+
+If you have questions or need help with applying mitch to your work, please raise an issue.
