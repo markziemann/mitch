@@ -1,3 +1,8 @@
+CHANGES IN VERSION 1.15.2
+------------------------
+   o A new vignette has been included to demonstrate how to conduct enrichment analysis of profiles
+generated with HM450K and EPIC arrays.
+
 CHANGES IN VERSION 1.15.1
 ------------------------
    o A change of the gene aggregation algorithm to allow enrichment analysis of infinium methylation analysis.
