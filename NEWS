@@ -1,3 +1,9 @@
+CHANGES IN VERSION 1.15.4
+------------------------
+   o A bug with tables in the HTML reports has been fixed.
+
+   o Minor improvements to the gmt_import() function to prevent empty sets.  
+
 CHANGES IN VERSION 1.15.2
 ------------------------
    o A new vignette has been included to demonstrate how to conduct enrichment analysis of profiles
