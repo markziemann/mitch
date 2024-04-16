@@ -338,8 +338,8 @@ if (d==1) {
                 '<br />setSize: ' + vals[1] +
                 '<br />p-adjust ANOVA: ' + Number(vals[2]).toPrecision(2)
             }"))
-    }
     p2
+    }
 }
 
 if (d==1) {
@@ -372,8 +372,8 @@ if (d==1) {
             }"))
 
         cat("Significance is calculated by -log10(p-value). Top N sets shown irrespective of FDR.<br>")
-    }
     p2
+    }
 }
 
 ```{r,echart2d,results="asis",echo=FALSE, fig.height = 7, fig.width = 7 ,fig.show="all", message=FALSE}
@@ -458,8 +458,8 @@ if (d!=1) {
             p2<-list()
             p2<-lapply( seq_len(nrow(plan)) , echartscatter)
         }
-    }
     htmltools::tagList(p2)
+    }
 }
 
 if (d!=1) {
@@ -509,9 +509,9 @@ if (d!=1) {
             p<-list()
             lapply( seq_len(nrow(plan)) , echartscatter)
         }
-    }
     htmltools::tagList(p)
     htmltools::tagList(p2)
+    }
 }
 
 ```
