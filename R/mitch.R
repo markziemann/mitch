@@ -1465,6 +1465,11 @@ mitch_calc <- function(x, genesets, minsetsize = 10, cores = detectCores() - 1,
     }
 
     if (ncol(x) > 1) {
+
+        if ( max(cor(x)) == 1 ) {
+            stop("Error: It looks like two or more contrasts are identical. Aborting.")
+        }
+
         enrichment_result <- MANOVA(ranked_profile, genesets, 
             minsetsize = minsetsize, cores = cores, priority = priority)
         
