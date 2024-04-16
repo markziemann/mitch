@@ -877,19 +877,19 @@ topgenelist<-function(i) {
     topgenes$Gene<-as.character(rownames(topgenes))
     topgenes<-topgenes[,c(3,1,2)]
 
-    suppressWarnings( tbl <- kbl(head(topgenes,n=20L), format='pipe', row.names=FALSE, caption="Top 20 genes", digits=100) %>%
-        kable_styling("hover", full_width = FALSE) )
+    tbl <- kbl(head(topgenes,n=20L), format='pipe', row.names=FALSE, caption="Top 20 genes", digits=100) %>%
+        kable_styling("hover", full_width = FALSE)
 
-    suppressWarnings( print(tbl) )
+    cat(tbl)
     cat('\n\n<!-- -->\n\n')
     HEADER=paste("<br><details><summary><b>","Click HERE to show all gene set members","</b></summary><br><p>",sep=" " )
     cat(HEADER)
     sss<-res$detailed_sets[[i]]
 
-    suppressWarnings( tbl <- kbl(sss, format='pipe', row.names=TRUE, caption="All member genes", digits=100) %>%
-        kable_styling("hover", full_width = FALSE) )
+    tbl <- kbl(sss, format='pipe', row.names=TRUE, caption="All member genes", digits=100) %>%
+        kable_styling("hover", full_width = FALSE)
 
-    suppressWarnings( print(tbl) )
+    cat(tbl)
     cat('\n\n<!-- -->\n\n')
     cat("<br></p></details>")
     cat("<br><hr>")
@@ -923,10 +923,10 @@ if (d!=1) {
                 colnames(mydat)<-c("metric","value")
                 cat(paste("<b>",as.character(myres[i,1]) ,"</b><br>"))
 
-                suppressWarnings( tbl <- kbl(mydat,format='pipe', caption=as.character(t(myres[i,1]))) %>%
-                    kable_styling("hover", full_width = FALSE) )
+                tbl <- kbl(mydat,format='pipe', caption=as.character(t(myres[i,1]))) %>%
+                    kable_styling("hover", full_width = FALSE)
 
-                suppressWarnings( print(tbl) )
+                cat(tbl)
                 cat('\n\n<!-- -->\n\n')
                 cat("<br>")
                 twodimplot(i)
@@ -944,10 +944,10 @@ if (d!=1) {
             colnames(mydat)<-c("metric","value")
             cat(paste("<b>",as.character(myres[i,1]) ,"</b><br>"))
 
-            suppressWarnings( tbl <- kbl(mydat,format='pipe',digits=5,caption=as.character(t(myres[i,1]))) %>%
-                    kable_styling("hover", full_width = FALSE) )
+            tbl <- kbl(mydat,format='pipe',digits=5,caption=as.character(t(myres[i,1]))) %>%
+                    kable_styling("hover", full_width = FALSE)
 
-            suppressWarnings( print(tbl) )
+            cat(tbl)
             cat('\n\n<!-- -->\n\n')
             cat("<br>")
             ndplot(i)
