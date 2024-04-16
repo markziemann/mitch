@@ -1449,7 +1449,7 @@ get_os <- function(){
 #' data(myImportedData,genesetsExample)
 #' resExample<-mitch_calc(myImportedData,genesetsExample,priority='effect',
 #' minsetsize=5,cores=2)
-mitch_calc <- function(x, genesets, minsetsize = 10, cores = detectCores() - 1,
+mitch_calc <- function(x, genesets, minsetsize = 10, cores = 1,
     resrows = 50, priority = NULL) {
     
     colnames(x) <- gsub("[[:punct:]]", "_", colnames(x))
