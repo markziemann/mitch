@@ -645,12 +645,13 @@ if (d==1) {
     for ( i in seq_len(resrows) ) {
         mydat = NULL
         mydat<-t(myres[i,])
+
         cat(paste("<b>",as.character(myres[i,1]) ,"</b><br>"))
 
-        suppressWarnings(tbl <- kbl(mydat,format='pipe',caption=as.character(t(myres[i,1]))) %>%
-            kable_styling("hover", full_width = FALSE) )
+        tbl <- kbl(mydat,col.names = NULL,format='pipe',caption=NULL ) %>%
+            kable_styling("hover", full_width = FALSE)
 
-        suppressWarnings(print(tbl))
+        cat(tbl)
         cat('\n\n<!-- -->\n\n')
         cat("<br>")
 
@@ -695,18 +696,18 @@ if (d==1) {
         colnames(tops)=c("GeneID","Gene Rank")
         cat("<br>")
 
-        suppressWarnings( tbl <- kbl(head(tops,n=20L), format='pipe', row.names=FALSE,caption="Top 20 genes",digits=100) %>%
-                kable_styling("hover", full_width = FALSE))
+        tbl <- kbl(head(tops,n=20L), format='pipe', row.names=FALSE,caption="Top 20 genes",digits=100) %>%
+                kable_styling("hover", full_width = FALSE)
 
-        suppressWarnings( print(tbl) )
+        cat(tbl)
         cat('\n\n<!-- -->\n\n')
         HEADER=paste("<br><details><summary><b>","Click HERE to show all gene set members","</b></summary><br><p>",sep=" " )
         cat(HEADER)
 
-        suppressWarnings( tbl <- kbl(tops, format='pipe', row.names=FALSE, caption="All member genes",digits=100) %>%
-                kable_styling("hover", full_width = FALSE) )
+        tbl <- kbl(tops, format='pipe', row.names=FALSE, caption="All member genes",digits=100) %>%
+                kable_styling("hover", full_width = FALSE)
 
-        suppressWarnings( print(tbl) )
+        cat(tbl)
         cat('\n\n<!-- -->\n\n')
         cat("<br></p></details>")
         cat("<br><hr>")
