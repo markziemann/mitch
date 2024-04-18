@@ -1466,7 +1466,10 @@ mitch_calc <- function(x, genesets, minsetsize = 10, cores = 1,
 
     if (ncol(x) > 1) {
 
-        if ( max(cor(x)) == 1 ) {
+    corx <- cor(x)
+    diag(corx) <- 0
+
+        if ( max(corx) == 1 ) {
             stop("Error: It looks like two or more contrasts are identical. Aborting.")
         }
 
