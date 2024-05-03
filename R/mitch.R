@@ -1420,8 +1420,7 @@ get_os <- function(){
 #' @param minsetsize the minimum number of genes required in a set for it to be
 #' included in the statistical analysis.
 #' Default is 10.
-#' @param cores the number of parallel threads for computation. Defaults to the 
-#' number of cores present minus 1.
+#' @param cores the number of parallel threads for computation. Defaults to 1.
 #' @param resrows an integer value representing the number of top genesets for
 #' which a detailed report is to be 
 #' generated. Default is 50.

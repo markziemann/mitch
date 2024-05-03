@@ -25,8 +25,7 @@ similar.}
 included in the statistical analysis.
 Default is 10.}
 
-\item{cores}{the number of parallel threads for computation. Defaults to the 
-number of cores present minus 1.}
+\item{cores}{the number of parallel threads for computation. Defaults to 1.}
 
 \item{resrows}{an integer value representing the number of top genesets for
 which a detailed report is to be 
