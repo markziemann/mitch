@@ -7,7 +7,7 @@
 mitch_import(x, DEtype, geneIDcol = NULL, geneTable = NULL, joinType = NULL)
 }
 \arguments{
-\item{x}{a list of differential expression tables}
+\item{x}{a list of differential expression tables.}
 
 \item{DEtype}{the program that generated the differential expression table
 Valid options are 'edgeR', 'DESeq2', 'limma', 'ABSSeq', 'Sleuth', 'Seurat',
@@ -18,14 +18,15 @@ Where 'prescored' is a dataframe containing the test statistic and gene ID
 (either in rowname or separate column) and nothing else. 'preranked' is an 
 alias for 'prescored'.}
 
-\item{geneIDcol}{the column containing gene names. If gene names are}
+\item{geneIDcol}{the column containing gene names. If gene names are 
+specified as row names, then geneIDcol=NULL.}
 
 \item{geneTable}{a 2 column table mapping gene identifiers in the profile to
 gene identifiers in the gene sets.}
 
 \item{joinType}{the type of join to perform, either 'inner' or 'full'.
 By default, joins are 'inner' except for Seurat and muscat where full is 
-used. specified as row names, then geneIDcol=NULL.}
+used.}
 }
 \value{
 a multi-column table compatible with mitch_calc analysis.

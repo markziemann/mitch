@@ -2,6 +2,7 @@
 % Please edit documentation in R/mitch.R
 \docType{package}
 \name{mitch}
+\alias{mitch-package}
 \alias{mitch}
 \title{mitch: An R package for multi-dimensional pathway enrichment analysis}
 \description{
@@ -42,4 +43,20 @@ resrows=5,cores=2)
 mitch_plots(resExample,outfile='outres.pdf')
 #' Generate a report of the analysis in HTML format
 mitch_report(resExample,'outres.html')
+}
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/markziemann/mitch}
+}
+
+}
+\author{
+\strong{Maintainer}: Mark Ziemann \email{mark.ziemann@gmail.com} (\href{https://orcid.org/0000-0002-7688-6974}{ORCID}) [copyright holder]
+
+Authors:
+\itemize{
+  \item Antony Kaspi [copyright holder]
+}
+
 }

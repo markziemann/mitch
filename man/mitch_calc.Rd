@@ -8,7 +8,7 @@ mitch_calc(
   x,
   genesets,
   minsetsize = 10,
-  cores = detectCores() - 1,
+  cores = 1,
   resrows = 50,
   priority = NULL
 )
