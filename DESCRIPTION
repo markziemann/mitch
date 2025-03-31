@@ -1,6 +1,6 @@
 Package: mitch
 Title: Multi-Contrast Gene Set Enrichment Analysis
-Version: 1.19.3
+Version: 1.19.4
 Authors@R: c(
     person(given = "Mark",
         family = "Ziemann",
@@ -32,12 +32,12 @@ Suggests:
     HGNChelper,
     IlluminaHumanMethylation450kanno.ilmn12.hg19,
     IlluminaHumanMethylationEPICanno.ilm10b4.hg19
-Imports: stats, grDevices, graphics, utils, MASS, plyr, reshape2, parallel, GGally, grid, gridExtra, knitr, rmarkdown, ggplot2, gplots, beeswarm, echarts4r, kableExtra
+Imports: stats, grDevices, graphics, utils, MASS, plyr, reshape2, parallel, GGally, grid, gridExtra, knitr, rmarkdown, ggplot2, gplots, beeswarm, echarts4r, kableExtra, dplyr, network
 License: CC BY-SA 4.0 + file LICENSE
 Encoding: UTF-8
 URL: https://github.com/markziemann/mitch
 BugReports: https://github.com/markziemann/mitch
 LazyData: false
 RoxygenNote: 7.3.2
-biocViews: GeneExpression, GeneSetEnrichment, SingleCell, Transcriptomics, Epigenetics, Proteomics, DifferentialExpression, Reactome, DNAMethylation, MethylationArray
+biocViews: GeneExpression, GeneSetEnrichment, SingleCell, Transcriptomics, Epigenetics, Proteomics, DifferentialExpression, Reactome, DNAMethylation, MethylationArray, DataImport
 VignetteBuilder: knitr

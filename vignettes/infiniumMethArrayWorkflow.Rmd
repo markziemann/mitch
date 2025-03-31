@@ -44,8 +44,10 @@ BiocManager::install("mitch")
 ```
 
 ```{r,lib}
+
 suppressPackageStartupMessages({
     library("mitch")
+    library("dplyr")
     library("HGNChelper")
     library("IlluminaHumanMethylation450kanno.ilmn12.hg19")
     library("IlluminaHumanMethylationEPICanno.ilm10b4.hg19")
@@ -139,10 +141,29 @@ You can also use the built in functions to make a set of charts and html report.
 It is vitally important to inspect the detailed resports to understand which
 genes are driving the enrichment in your dataset.
 
-```{r,downstream}
+```{r,downstream1}
 
 mitch_plots(res,outfile="methcharts.pdf")
+
+```
+
+```{r,downstream2,results=FALSE}
+
 mitch_report(res,"methreport.html")
+
+```
+
+We have a `networkplot()` function that produces two network plots, one for increased
+methylation (nodes shaded red), and one for decreased methylation (nodes shaded blue).
+See `?networkplot()` for more details.
+
+Lists of enriched gene set members are shown.
+
+```{r,meth_network,fig.width=14,fig.height=6}
+
+networkplot(res,FDR=0.1,n_sets=10)
+
+network_genes(res,FDR=1,n_sets=10)
 
 ```
 

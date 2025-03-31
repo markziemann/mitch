@@ -1,3 +1,4 @@
+
 ---
 title: "mitch Workflow"
 author: "Antony Kaspi & Mark Ziemann"
@@ -24,9 +25,9 @@ transcriptomic, epigenomic analysis of the same samples. mitch is perfectly
 suited for pathway level differential analysis of scRNA-seq data.
 
 The main strengths of mitch are that it can import datasets easily
-from many upstream tools and has advanced plotting features to 
+from many upstream tools and has advanced plotting features to
 visualise these enrichments. mitch consists of five functions. A
-typical mitch workflow would consist of: 
+typical mitch workflow would consist of:
 
 * 1: Import gene sets with `gmt_import()`
 
@@ -34,9 +35,8 @@ typical mitch workflow would consist of:
 
 * 3: Calculate enrichments with `mitch_calc()`
 
-* 4: And generate plots and reports with `mitch_plots()` and `mitch_report()`
-
-
+* 4: And generate plots and reports with `mitch_plots()`, `mitch_report()` and
+`networkplot()`.
 
 ```{r, install, eval = FALSE}
 if(!requireNamespace("BiocManager", quietly = TRUE))
@@ -57,7 +57,7 @@ package). For example we can grab some gene sets from Reactome.org:
 download.file("https://reactome.org/download/current/ReactomePathways.gmt.zip",
     destfile="ReactomePathways.gmt.zip")
 unzip("ReactomePathways.gmt.zip")
-genesets<-gmt_import("ReactomePathways.gmt")
+genesets <- gmt_import("ReactomePathways.gmt")
 ```
 
 In this cut down example we will be using a sample of 200 Reactome gene sets:
@@ -79,8 +79,8 @@ profile being imported, they need to be part of a list.
 
 ```{r,import11}
 data(rna,k9a)
-x<-list("rna"=rna,"k9a"=k9a)
-y<-mitch_import(x,"edgeR")
+x <- list("rna"=rna,"k9a"=k9a)
+y <- mitch_import(x,"edgeR")
 head(y)
 ```
 
@@ -88,7 +88,7 @@ mitch can do unidimensional analysis if you provide it a single profile as a
 dataframe (not in a list).
 
 ```{r,import4}
-y<-mitch_import(rna,DEtype="edger")
+y <- mitch_import(rna,DEtype="edger")
 head(y)
 ```
 
@@ -97,12 +97,12 @@ specified with the `geneIDcol` parameter like this:
 
 ```{r,import5}
 # first rearrange cols
-rna_mod<-rna
-rna_mod$MyGeneIDs<-rownames(rna_mod)
-rownames(rna_mod)<-seq(nrow(rna_mod))
+rna_mod <- rna
+rna_mod$MyGeneIDs <- rownames(rna_mod)
+rownames(rna_mod) <- seq(nrow(rna_mod))
 head(rna_mod)
 # now import with geneIDcol
-y<-mitch_import(rna_mod,DEtype="edgeR",geneIDcol="MyGeneIDs")
+y <- mitch_import(rna_mod,DEtype="edgeR",geneIDcol="MyGeneIDs")
 head(y)
 ```
 
@@ -122,28 +122,28 @@ we can create some fake gene accession numbers to demonstrate this feature.
 ```{r,import6}
 library("stringi")
 # obtain vector of gene names
-genenames<-rownames(rna)
+genenames <- rownames(rna)
 # create fake accession numbers
-accessions<-paste("Gene0",stri_rand_strings(nrow(rna)*2, 6, pattern = "[0-9]"),sep="")
-accessions<-head(unique(accessions),nrow(rna))
+accessions <- paste("Gene0",stri_rand_strings(nrow(rna)*2, 6, pattern = "[0-9]"),sep="")
+accessions <- head(unique(accessions),nrow(rna))
 # create a gene table file that relates gene names to accession numbers
-gt<-data.frame(genenames,accessions)
+gt <- data.frame(genenames,accessions)
 
 # now swap gene names for accessions
-rna2<-merge(rna,gt,by.x=0,by.y="genenames")
-rownames(rna2)<-rna2$accessions
-rna2<-rna2[,2:5]
+rna2 <- merge(rna,gt,by.x=0,by.y="genenames")
+rownames(rna2) <- rna2$accessions
+rna2 <- rna2[,2:5]
 
-k9a2<-merge(k9a,gt,by.x=0,by.y="genenames")
-rownames(k9a2)<-k9a2$accessions
-k9a2<-k9a2[,2:5]
+k9a2 <- merge(k9a,gt,by.x=0,by.y="genenames")
+rownames(k9a2) <- k9a2$accessions
+k9a2 <- k9a2[,2:5]
 
 # now have a peek at the input data before importing
 head(rna2,3)
 head(k9a2,3)
 head(gt,3)
-x<-list("rna2"=rna2,"k9a2"=k9a2)
-y<-mitch_import(x,DEtype="edgeR",geneTable=gt)
+x <- list("rna2"=rna2,"k9a2"=k9a2)
+y <- mitch_import(x,DEtype="edgeR",geneTable=gt)
 head(y,3)
 ```
 
@@ -151,26 +151,35 @@ head(y,3)
 
 ## Calculating enrichment
 The `mitch_calc` function performs multivariate enrichment analysis of the
-supplied gene sets in the scored profiling data. At its simpest form 
-`mitch_calc` function accepts the scored data as the first argument and the 
+supplied gene sets in the scored profiling data. At its simpest form
+`mitch_calc` function accepts the scored data as the first argument and the
 genesets as the second argument. Users can prioritise enrichments based on
-small adjusted p-values, by the observed effect size (magnitude of "s", the
-enrichment score) or the standard deviation of the s scores. Note that the
-number of parallel cores is set here to cores=2 but the default is to use all
-but one available cores.
+small adjusted p-values, by the observed effect size ("s.dist", the magnitude
+of "s", the enrichment score) or the standard deviation of the s scores.
+For most analyses, you will see more specific results when prioritising by
+effect, but it is worth looking at both.
+
+Note that the number of parallel threads ("cores") is set here to cores=2 but
+the default is to use just one.
+If you have many available threads, then a good number is 8-12.
+Note that the more CPU threads used, the more RAM is required, so monitor the
+available memory on your system.
 
 ```{r,calc1,results="hide"}
 # prioritisation by significance
-res<-mitch_calc(y,genesetsExample,priority="significance",cores=2)
+res <- mitch_calc(y,genesetsExample,priority="significance",cores=2)
 ```
+
 ```{r,calc2}
 # peek at the results
 head(res$enrichment_result)
 ```
+
 ```{r,calc3,results="hide"}
 # prioritisation by effect size
-res<-mitch_calc(y,genesetsExample,priority="effect",cores=2)
+res <- mitch_calc(y,genesetsExample,priority="effect",cores=2)
 ```
+
 ```{r,calc4}
 head(res$enrichment_result)
 ```
@@ -180,11 +189,11 @@ are discarded. This threshold can be modified using the minsetsize option.
 There is no upper limit of gene set size.
 
 ```{r,calc5,results="hide"}
-res<-mitch_calc(y,genesetsExample,priority="significance",minsetsize=5,cores=2)
+res <- mitch_calc(y,genesetsExample,priority="significance",minsetsize=5,cores=2)
 ```
 
-By default, in downstream visualisation steps, charts are made from the top 50 gene sets, but this can be 
-modified using the resrows option.
+By default, in downstream visualisation steps, charts are made from the top 50 gene
+sets, but this can be modified using the resrows option.
 
 ```{r,calc6,results="hide"}
 res<-mitch_calc(y,genesetsExample,priority="significance",resrows=3,cores=2)
@@ -207,8 +216,39 @@ can be generated as such:
 mitch_plots(res,outfile="mycharts.pdf")
 ```
 
+## Network plot
+
+For one-dimensional analysis, you can generate a network plot to visualise the
+similarity of the driver gene members for the top (20) up- and downregulated sets
+meeting a significance cut-off (FDR<0.05).
+These cut-offs can be altrered.
+
+By default, this includes genes scored in the top and bottom tertiles, otherwise
+they are discarded.
+The intensity of the colour is proportional to the s.dist value (enrichment score).
+Circle size is proportional to the number of genes in the set.
+Line thickness is proportional to the Jaccard similarity value.
+This function works best after prioritisation with "effect" when running
+`mitch_calc()`.
+Note that the circle (node) size and the line width shown in the legend is approximate,
+although the values shown are exactly the smallest and largest respectively.
+Note that this chart works best when the width is double the height, otherwise
+many of the long gene set names could be cut off.
+There is an element of stochasticity with regard to the network projection, so
+it could be a good idea to repeat it a few times until you get a nice layout.
+
+Lists of enriched gene set members are shown.
+
+```{r,network_demo,fig.width=14,fig.height=6}
+
+networkplot(res,FDR=1,n_sets=10)
+
+network_genes(res,FDR=1,n_sets=10)
+
+```
+
 ## Session Info
+
 ```{r,sessioninfo,message=FALSE}
 sessionInfo()
 ```
-

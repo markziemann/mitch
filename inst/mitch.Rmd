@@ -24,17 +24,8 @@ Here is the first few lines of the input profile.
 ```{r,checklibraries,echo=FALSE}
 
 suppressPackageStartupMessages({
-    library("echarts4r")
-    library("dplyr")
-    library("tibble")
+    library("mitch")
     library("gtools")
-    library("gplots")
-    library("beeswarm")
-    library("reshape2")
-    library("ggplot2")
-    library("GGally")
-    library("pkgload")
-    library("kableExtra")
 })
 
 ```
@@ -959,6 +950,40 @@ if (d!=1) {
 }
 
 ```
+
+## Network diagram
+
+Only used for one-dimensional analysis.
+
+Here, the network diagram is used to depict the similarity between some of the top ranked gene sets.
+It makes separate charts for up and downregulated sets.
+It works best when prioritisation is done by effect size during the `mitch_calc()` step.
+By default, we only show the top 20 genes, but you can use the `networkplot()` command yourself
+with other options.
+See `?networkplot` for more detail.
+There is an element of stochasticity with regard to the network projection, so if you see a lot of
+overlapping labels or labels getting cut off, you could repeat the chart generation until you get a
+nice layout.
+See `?networkplot` for more detail.
+
+Below the network diagrams, you will see lists of genes that make up the up and downregulated sets
+respectively.
+For upregulated genes the score needs to be >2 and for downregulated genes it needs to be < -2.
+This is to remove genes that have uninteresting differential expression and do not contribute
+enrichment.
+
+```{r,network,fig.height=6, fig.width=14}
+
+if (d==1) {
+  networkplot(eres=res,FDR=0.05,n_sets=20)
+  network_genes(eres=res,FDR=0.05,n_sets=20)
+} else {
+ message("Network charts only generated in one-dimensional analysis.")
+}
+
+```
+
+## Session information
 
 Here is the session info with all the versions of packages used.
 

@@ -38,7 +38,7 @@
 #' mitch_plots(resExample,outfile='outres.pdf')
 #' #' Generate a report of the analysis in HTML format
 #' mitch_report(resExample,'outres.html')
-NULL
+"_PACKAGE"
 
 #' @import utils
 utils::globalVariables(c("p.adjustMANOVA", "effect", "p.adjustANOVA", "contrast",
@@ -1063,7 +1063,7 @@ gmt_import <- function(gmtfile) {
     genesets
 }
 
-MANOVA <- function(x, genesets, minsetsize = 10, cores = detectCores() - 1,
+MANOVA <- function(x, genesets, minsetsize = 10, cores = 1,
     priority = NULL) {
     
     STARTSWITHNUM <- length(grep("^[0-9]", colnames(x)))
@@ -1155,7 +1155,7 @@ MANOVA <- function(x, genesets, minsetsize = 10, cores = detectCores() - 1,
 }
 
 
-ANOVA <- function(x, genesets, minsetsize = 10, cores = detectCores() - 1, 
+ANOVA <- function(x, genesets, minsetsize = 10, cores = 1, 
 priority = NULL) {
     
     STARTSWITHNUM <- length(grep("^[0-9]", colnames(x)))
@@ -2123,6 +2123,7 @@ mitch_plots <- function(res, outfile = "Rplots.pdf") {
 #' mitch_report(resExample,'outres2.html')
 #' @import knitr
 #' @importFrom rmarkdown render
+#' @importFrom dplyr mutate
 #' @import echarts4r
 #' @import kableExtra
 mitch_report <- function(res, outfile , overwrite=FALSE) {
@@ -2167,7 +2168,206 @@ mitch_report <- function(res, outfile , overwrite=FALSE) {
     file.copy(html_tmp, outfile, overwrite=overwrite)
 }
 
+map2color <- function(x,pal,limits=NULL){
+  if (is.null(limits)) limits <- range(x)
+  pal[findInterval(x,seq(limits[1],limits[2],length.out=length(pal)+1), all.inside=TRUE)]
+}
 
+gs2net <- function(gset,em,colfunc=colorRampPalette(c("blue", "white","red"))(n=100)){
+  gset <- gset[order(names(gset))]
+  mydf <- dplyr::bind_rows(lapply(gset, as.data.frame.list))
+  rownames(mydf) <- names(gset)
+  j <- apply(mydf,1,function(x) {
+    apply(mydf,1,function(y) {
+      length(intersect(x,y) ) / length(union(x,y))
+    })
+  })
+  j[lower.tri(j)] <- NA
+  j[lower.tri(j,diag=TRUE)] <- 0
+  jl <- reshape2::melt(j)
+  jl <- jl[which(jl$Var1 != jl$Var2),]
+  jl <- jl[which(jl$value != 1),]
+  jl <- jl[order(-jl$value),]
+  jl <- head(jl,length(gset)*2)
+  jl$edgeSize = jl$value/sum(jl$value)
+  nodes <- sort(union(jl[,1],jl[,2]))
+  lengths <- unlist(lapply(gset,length))
+  lengths <- lengths[names(lengths) %in% nodes]
+  nodes <- data.frame("nodes"=nodes,"lengths"=lengths)
+  nodes$vertexsize <- sqrt(nodes$lengths/sum(nodes$lengths) * 100)
+  nodes$es <- em[match(nodes$nodes,em$set),"s.dist"]
+  nodes$colours <- map2color(nodes$es,colfunc)
+  jl2 <- apply(jl[,1:2],2,as.character)
+  jlnet <- network(jl2)
+  jlnet$val <- lapply(jlnet$val, function(x) {
+    vn <- x[[2]]
+    vn <- substr(vn, 1, 60)
+    if (nchar(vn) == 60 ) {
+      vn <- paste(vn,"...",sep="")
+    }
+  x[[2]] <- vn
+  return(x)
+  } )
+  plot(jlnet, displaylabels = TRUE, label.col = "steelblue",
+       edge.lwd = c(jl$edgeSize) * 100,
+       arrowhead.cex = 0,
+       label.cex = 0.8, vertex.border = "white",vertex.cex = nodes$vertexsize,
+       vertex.col = nodes$colours, edge.col = "black")
+  E1 <- min(nodes$es)
+  E5 <- max(nodes$es)
+  E3 <- mean(c(E1,E5))
+  EE <- c(E1,E3,E5)
+  legcols <- map2color(EE,colfunc)
+  legend("topleft", legend=signif(EE,2) ,title="ES",box.lty=0,
+    fill=legcols, cex=0.8)
+  S1 <- min(nodes$vertexsize)
+  FRAG <- S1/10
+  S5 <- max(nodes$vertexsize)
+  S3 <- mean(c(S1,S5))
+  SS <- c(S1-FRAG,0,S5-FRAG)
+  L1 <- min(nodes$lengths)
+  L5 <- max(nodes$lengths)
+  LL <- paste(" ",c(L1,"",L5))
+  legend("topright", legend=LL ,title="no. genes",box.lty=0,
+    pt.cex=SS*1, cex=0.9 , pch=19,col="darkgray")
+  J1 <- min(jl$edgeSize)
+  FRAG <- J1*3
+  J5 <- max(jl$edgeSize)
+  J3 <- mean(c(J1,J5))
+  JJ <- c(J1,J3,J5)
+  JL <- JJ+FRAG
+  legend("bottomleft", legend=signif(JJ,2) , lwd=JL*50, title="Jaccard",
+    box.lty=0, cex=0.9 , lty=1, col="black")
+}
+
+#' networkplot
+#'
+#' This function generates gene set network diagrams to complement the enrichment analysis.
+#' It produces separate charts for up and down-regulated sets.
+#' This only includes genes ranked in the top and bottom tertiles.
+#' Genes in the set which do not meet this criterion are discarded.
+#' The intensity of the colour is proportional to the s.dist value (enrichment score).
+#' Circle size is proportional to the number of genes in the set.
+#' Line thickness is proportional to the Jaccard similarity value.
+#' This function works best after prioritisation with "effect" when running
+#' mitch_calc().
+#' Note that the circle size and the line width shown in the legend is approximate,
+#' although the values shown are exactly the smallest and largest respectively.
+#' Note that this chart works best when the width is double the height, otherwise
+#' many of the long gene set names could be cut off.
+#' There is an element of stochasticity with regard to the network projection, so
+#' it could be a good idea to repeat it a few times until you get a nice layout.
+#' @param eres a mitch results object.
+#' @param FDR the significance threshold for inclusion. By default, it is 0.05
+#' @param n_sets the number of sets to include. This type of graph can get messy,
+#' so the default is 20, but it can be customised to your needs.
+#' @return generates network diagrams.
+#' @keywords mitch visualisation network
+#' @export
+#' @examples
+#' data(resExample)
+#' networkplot(resExample)
+#' @importFrom reshape2 melt
+#' @importFrom dplyr bind_rows
+#' @importFrom network network
+networkplot <- function(eres,FDR=0.05,n_sets=20) {
+  scores <- eres[[1]][,1]
+  names(scores) <- rownames(eres[[1]])
+  gs <- eres[[2]]
+  eres <- eres[[4]]
+  up <- head(eres[eres$p.adjustANOVA < FDR & eres$s.dist > 0,],n_sets)
+  n_up <- nrow(up)
+  if (n_up >= 5) {
+    up_gs <- up[,1]
+    up_gs <- gs[which(names(gs) %in% up_gs)]
+    topgs_up <- lapply(seq(from=1,to=length(up_gs)),function(i) {
+      gsname <- names(up_gs)[i]
+      genes <- up_gs[[i]]
+      gene_scores <- scores[which(names(scores) %in% genes)]
+      top_genes <- names(which(gene_scores > quantile(gene_scores,c(2/3))))
+      return(top_genes)
+    })
+    names(topgs_up) <- names(up_gs)
+    gs2net(gset=topgs_up,em=eres,colfunc=colorRampPalette(c("pink","darkred"))(n=100))
+  } else {
+    message("Can't plot upregulated sets. Fewer than 5 found.")
+  }
+
+  dn <- head(eres[eres$p.adjustANOVA < FDR & eres$s.dist < 0,],n_sets)
+  n_dn <- nrow(dn)
+  if (n_dn >= 5) {
+    dn_gs <- dn[,1]
+    dn_gs <- gs[which(names(gs) %in% dn_gs)]
+    topgs_dn <- lapply(seq(from=1,to=length(dn_gs)),function(i) {
+      gsname <- names(dn_gs)[i]
+      genes <- dn_gs[[i]]
+      gene_scores <- scores[which(names(scores) %in% genes)]
+      top_genes <- names(which(gene_scores < quantile(gene_scores,c(1/3))))
+      return(top_genes)
+    })
+    names(topgs_dn) <- names(dn_gs)
+    gs2net(gset=topgs_dn,em=eres,colfunc=colorRampPalette(c("darkblue","lightblue"))(n=100))
+  } else {
+    message("Can't plot downregulated sets. Fewer than 5 found.")
+  }
+}
+
+#' network_genes
+#'
+#' This is a companion function for the network diagrams to display the genes which contribute
+#' to the enrichment and are shared between gene sets.
+#' @param eres a mitch results object.
+#' @param FDR the significance threshold for inclusion. By default, it is 0.05
+#' @param n_sets the number of sets to include.
+#' @return a list of up- and down-regulated gene sets
+#' @keywords mitch visualisation network
+#' @export
+#' @examples
+#' data(resExample)
+#' network_genes(resExample)
+network_genes <- function(eres,FDR=0.05,n_sets=20) {
+  scores <- eres[[1]][,1]
+  names(scores) <- rownames(eres[[1]])
+  gs <- eres[[2]]
+  eres <- eres[[4]]
+
+  up <- head(eres[eres$p.adjustANOVA < FDR & eres$s.dist > 0,],n_sets)
+  n_up <- nrow(up)
+  if (n_up > 0) {
+    up_gs <- up[,1]
+    up_gs <- gs[which(names(gs) %in% up_gs)]
+    topgs_up <- lapply(seq(from=1,to=length(up_gs)),function(i) {
+      gsname <- names(up_gs)[i]
+      genes <- up_gs[[i]]
+      gene_scores <- scores[which(names(scores) %in% genes)]
+      top_genes <- names(which(gene_scores>2))
+      return(top_genes)
+    })
+    names(topgs_up) <- names(up_gs)
+  } else {
+    topgs_up <- NULL
+    message("No significant upregulated sets to show.")
+  }
+
+  dn <- head(eres[eres$p.adjustANOVA < FDR & eres$s.dist < 0,],n_sets)
+  n_dn <- nrow(dn)
+  if (n_dn > 0) {
+    dn_gs <- dn[,1]
+    dn_gs <- gs[which(names(gs) %in% dn_gs)]
+    topgs_dn <- lapply(seq(from=1,to=length(dn_gs)),function(i) {
+      gsname <- names(dn_gs)[i]
+      genes <- dn_gs[[i]]
+      gene_scores <- scores[which(names(scores) %in% genes)]
+      top_genes <- names(which(gene_scores<2))
+      return(top_genes)
+    })
+    names(topgs_dn) <- names(dn_gs)
+  } else {
+    topgs_dn <- NULL 
+    message("No significant upregulated sets to show.")
+  }
+  return(list(c("UP genesets"=topgs_up,"DOWN genesets"=topgs_dn)))
+}
 
 #' Reactome gene sets
 #'

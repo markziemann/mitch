@@ -48,6 +48,7 @@ mitch_report(resExample,'outres.html')
 Useful links:
 \itemize{
   \item \url{https://github.com/markziemann/mitch}
+  \item Report bugs at \url{https://github.com/markziemann/mitch}
 }
 
 }
