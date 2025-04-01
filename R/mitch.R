@@ -2236,6 +2236,7 @@ gs2net <- function(gset,em,colfunc=colorRampPalette(c("blue", "white","red"))(n=
   J3 <- mean(c(J1,J5))
   JJ <- c(J1,J3,J5)
   JL <- JJ+FRAG
+  JJ <- c( min(jl$value), mean(c(min(jl$value),max(jl$value))),max(jl$value) )
   legend("bottomleft", legend=signif(JJ,2) , lwd=JL*50, title="Jaccard",
     box.lty=0, cex=0.9 , lty=1, col="black")
 }
